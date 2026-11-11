@@ -36,6 +36,12 @@ Admin is locked unless the owner sets `ADMIN_HASH` in `index.html`. The owner pa
 - Privacy Policy and Terms are templates and need the contact email and country filled in
 
 ## Credits
-Team members: add names here
+Team members: INDRAJEET GUPTA 
+ATULAYA AGGARWAL
+ANSHUMAN SINGH
+VAANYA GOYAL
+MAYANK GUPTA
+ANIRUDH GUPTA 
+
 
 Copyright (c) 2026 Impact X. All rights reserved.
