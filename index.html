@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<!--
+  Impact X
+  Copyright (c) 2026 Impact X. All rights reserved.
+  This game, its code, story, artwork and design are protected by copyright.
+  Copying, editing, redistributing or selling any part of it without written permission is prohibited.
+-->
+<html lang="en"><head>
+<meta name="copyright" content="Copyright 2026 Impact X. All rights reserved."><meta name="author" content="Impact X"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Impact X - Free 3D Game About the Global Goals</title>
+<meta name="description" content="Run through a floating sky world, learn all 17 UN Sustainable Development Goals, beat the Boss and unlock skins. Free browser game for students and young adults.">
+<meta property="og:title" content="Impact X"><meta property="og:description" content="A 3D browser game that teaches the 17 UN Sustainable Development Goals."><meta property="og:type" content="website"><meta name="theme-color" content="#0d1226">
+<noscript>Please enable JavaScript to play Impact X.</noscript>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;overflow:hidden;background:#8fd3ff;font-family:'Trebuchet MS',Verdana,sans-serif}
+canvas{display:block}
+#hud{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;color:#fff;text-shadow:0 2px 4px #0006;font-weight:bold}
+#hud div{background:#0007;padding:8px 14px;border-radius:20px}
+#help{position:fixed;bottom:12px;left:0;right:0;text-align:center;color:#fff;text-shadow:0 2px 4px #0008;font-size:14px;pointer-events:none}
+#enter{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);display:none;font-size:20px;padding:14px 26px;border:0;border-radius:30px;background:#ffd400;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 6px 0 #b39500}
+#ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000a;padding:12px}
+#card{width:min(560px,100%);border-radius:24px;padding:22px;color:#fff;text-align:center;position:relative;overflow:hidden;min-height:340px;box-shadow:0 10px 40px #0008}
+#big{font-size:90px;animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-12px) scale(1.1)}}
+#cap{font-size:22px;min-height:90px;margin:8px 0;animation:pop .5s}
+@keyframes pop{from{transform:scale(.8);opacity:0}}
+#bar{height:10px;background:#fff4;border-radius:5px;overflow:hidden}#bar i{display:block;height:100%;width:0;background:#fff}
+.b{position:absolute;font-size:40px;cursor:pointer;animation:rise 4s linear forwards;user-select:none}
+@keyframes rise{from{bottom:-50px}to{bottom:105%}}
+.opt,.go{display:block;width:100%;margin:10px 0;padding:14px;border:0;border-radius:16px;font-size:18px;font-weight:bold;cursor:pointer;background:#fff;color:#222}
+.go{background:#ffd400}
+.bad{background:#ffb3b3!important}.ok{background:#9bf29b!important}
+
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+#hud div{background:rgba(12,20,40,.55)!important;backdrop-filter:blur(8px);border:1px solid #fff2;border-radius:14px!important;padding:7px 14px!important;font-size:13px;letter-spacing:.06em;font-weight:600}#hud b{color:#ffd166}
+#hud{right:auto!important}
+#card{border:1px solid #fff3;max-height:92vh;overflow:auto;min-height:0!important}
+.opt,.go{border-radius:12px!important;box-shadow:0 2px 0 #0003;transition:transform .12s,filter .12s}.opt:hover,.go:hover{transform:translateY(-1px);filter:brightness(1.06)}
+#cv{width:auto!important;max-width:100%;max-height:40vh;display:block;margin:6px auto!important}
+.gb{width:44px;height:44px;border:1px solid #fff3;border-radius:14px;background:rgba(12,20,40,.6);color:#fff;font-size:20px;backdrop-filter:blur(8px);cursor:pointer;padding:0}
+#tb{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));display:flex;gap:8px;z-index:5}
+#joy{position:fixed;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:128px;height:128px;border-radius:50%;background:rgba(255,255,255,.14);border:2px solid #fff4;touch-action:none;display:flex;align-items:center;justify-content:center;z-index:4}
+#joy i{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.55);pointer-events:none}
+#jb,#cb{position:fixed;border-radius:50%!important;font-size:13px!important;font-weight:bold;z-index:4}
+#jb{right:calc(30px + env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px));width:76px;height:76px}
+#cb{right:calc(120px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));width:58px;height:58px}
+#rot{display:none;position:fixed;top:0;left:0;right:0;padding:8px;background:#000c;color:#fff;text-align:center;font-size:14px;z-index:9}
+@media (pointer:fine){#jb,#cb,#joy{display:none}}
+@media (pointer:coarse){#help{display:none}#enter{left:auto!important;right:24px!important;bottom:125px!important;transform:none!important}#mini{width:100px!important;height:100px!important;top:calc(48px + env(safe-area-inset-top,0px))!important}#hud div{font-size:11px;padding:5px 10px!important}}
+@media (pointer:coarse) and (orientation:portrait){#rot{display:block}}
+@media (max-height:520px){#card{padding:12px!important}#big{font-size:46px!important}#cap{font-size:16px!important;min-height:44px!important}.opt,.go{padding:8px!important;font-size:15px!important;margin:5px 0!important}h2{font-size:18px;margin:4px 0}h3{margin:4px 0}}
+#mini{width:116px!important;height:116px!important;opacity:.88}#lobby{position:fixed;inset:0;display:none;flex-direction:column;justify-content:center;gap:12px;padding:0 7vw;z-index:20;color:#fff;background:linear-gradient(90deg,rgba(6,9,22,.88),rgba(6,9,22,.35) 55%,transparent)}
+#lobby h1{margin:0;font-size:clamp(26px,6vw,64px);letter-spacing:.16em;font-weight:800}#lobby .tg{margin:0 0 6px;opacity:.75;font-size:clamp(12px,2vw,18px)}
+.lb{padding:10px 16px;border:1px solid #fff3;border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-size:15px;cursor:pointer;backdrop-filter:blur(6px)}.lb:hover{background:rgba(255,255,255,.18)}
+.lb.pr{background:#ffd166;color:#10172b;font-weight:800;font-size:20px;padding:13px 34px;width:fit-content;border:0}
+#lobby .row{display:flex;gap:10px;flex-wrap:wrap}.pill{padding:7px 16px;border-radius:999px;border:1px solid #fff4;background:transparent;color:#fff;cursor:pointer}.pill.on{background:#fff;color:#10172b;font-weight:700}
+#lst{opacity:.8;font-size:14px;margin-top:4px}
+.inlob #hud,.inlob #tb,.inlob #mini,.inlob #joy,.inlob #jb,.inlob #cb,.inlob #enter,.inlob #help{display:none!important}
+</style></head><body>
+<div id="hud"><div>IMPACT X</div><div id="st"></div></div>
+<div id="help">W A S D to run &nbsp;•&nbsp; SPACE = jump • SHIFT = crouch • R = reset • M = map • click = lock cursor (ESC releases) • mouse or ←/→ = camera • B = shop • run along the path to a glowing portal, press E (or tap Enter)</div>
+<button id="shopb" style="position:fixed;right:12px;bottom:60px;font-size:18px;padding:12px 16px;border:0;border-radius:24px;background:#fff;font-weight:bold;cursor:pointer">🛍️ Shop</button><button id="enter">🚪 Enter Quest (E)</button>
+<div id="ov"><div id="card"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>(()=>{
+// name|emoji|color|fact1|fact2|fact3|question|optA|optB|optC|answerIndex
+const D=`No Poverty|🏠|#E5243B|Goal 1 is about ending poverty everywhere.|Many people live on very little money each day.|Fair jobs, schools and help for families lift people up!|What is Goal 1 about?|Ending poverty|Building robots|Growing candy|0
+Zero Hunger|🌾|#DDA63A|Goal 2 wants nobody to ever go hungry.|Farmers need good seeds, soil and water.|Sharing food and not wasting it helps everyone eat.|What does Goal 2 want?|More video games|No hunger|Longer holidays|1
+Good Health|❤️|#4C9F38|Goal 3 helps everyone live a healthy life.|Clean water, vaccines and doctors keep us well.|Eating well, sleeping and playing keep YOU strong!|Which keeps you healthy?|Sleep and healthy food|Only snacks|Never moving|0
+Quality Education|📚|#C5192D|Goal 4 says every child deserves a good school.|Reading and learning open doors to dreams.|Teachers and books are real superheroes!|Who deserves a good education?|Only some kids|Every child|Only grown-ups|1
+Gender Equality|⚖️|#FF3A21|Goal 5 means girls and boys get equal chances.|Everyone can be a scientist, a leader or an artist.|Treating each other fairly makes the world better.|Goal 5 means...|Equal chances for all|Boys only|Girls only|0
+Clean Water|💧|#26BDE2|Goal 6 brings clean water and toilets to all.|Dirty water makes people sick.|Turn off the tap while brushing to save water!|How can you save water?|Leave tap running|Turn off the tap|Waste it|1
+Clean Energy|☀️|#FCC30B|Goal 7 wants clean energy for everyone.|Sun, wind and water make power without smoke.|Switch off lights when you leave a room!|Which is clean energy?|Coal smoke|Solar power|Burning plastic|1
+Decent Work|💼|#A21942|Goal 8 is about fair, safe jobs for people.|Good work helps families and growing towns.|Everyone should be paid fairly and treated kindly.|Goal 8 is about...|Fair and safe jobs|Unsafe work|No jobs|0
+Industry & Innovation|🏭|#FD6925|Goal 9 builds smart roads, bridges and internet.|Inventions can solve big problems.|Clean factories and new ideas make a better future!|What does innovation mean?|Copying only|New ideas|Doing nothing|1
+Reduced Inequalities|🤝|#DD1367|Goal 10 means being fair to everyone.|People should not be left out for who they are.|Include others in your games and be kind!|What should we do?|Include everyone|Leave people out|Be unfair|0
+Sustainable Cities|🏙️|#FD9D24|Goal 11 makes towns safe, green and friendly.|Buses, bikes and parks cut pollution.|Plant trees and walk or cycle when you can!|A greener city has...|More smoke|Parks and buses|No trees|1
+Responsible Consumption|♻️|#BF8B2E|Goal 12 asks us to use things wisely.|Reduce, Reuse, Recycle!|Buy only what you need and sort your waste.|The 3 R's are...|Run, Rest, Repeat|Reduce, Reuse, Recycle|Read, Race, Rest|1
+Climate Action|🌍|#3F7E44|Goal 13 fights climate change.|Too much pollution heats up our planet.|Save energy, plant trees and tell friends!|What heats the planet?|Pollution|Ice cream|Rainbows|0
+Life Below Water|🐠|#0A97D9|Goal 14 protects oceans and sea animals.|Plastic in the sea hurts fish and turtles.|Never litter and skip single-use plastic!|What harms the ocean?|Clean beaches|Plastic waste|Coral|1
+Life on Land|🌳|#56C02B|Goal 15 protects forests and wild animals.|Trees give us air, homes for animals and food.|Plant a tree and respect nature!|Trees give us...|Fresh air|Only noise|Trash|0
+Peace & Justice|🕊️|#00689D|Goal 16 is about peace and fair rules.|Everyone should feel safe and heard.|Solve problems with words, not fights!|Best way to solve a fight?|Shouting|Talking kindly|Hitting|1
+Partnerships|🤲|#19486A|Goal 17 says we win by teaming up.|Countries, schools and families all help.|Together we can reach every goal!|How do we reach the goals?|Alone|Teamwork|Giving up|1`.split('\n').map(l=>l.split('|'));
+const LES=`No Poverty~Hundreds of millions of people live on very little money, so a safe home, food, school fees and a doctor are hard to afford.|When a family is poor, children may leave school to work, and one flood or illness can wipe out everything they have.~Fix it fairly: fair wages, a school place for every child, healthcare, and help to save money and start small businesses.|Morally, nobody is lazy for being poor. We share with respect, never look down on anyone, and speak up for fair rules.~When families earn enough, they do not need to cut every tree for fuel or farm worn-out land just to survive.|Stronger families can afford solar lamps, clean cooking and homes that survive storms, which cuts pollution and protects nature.
+Zero Hunger~Many people do not get enough food, while about a third of the food grown in the world is lost or thrown away.|Hungry children cannot focus or grow well, and droughts, wars and high prices push more families toward hunger.~Support farmers with seeds, fair prices and safe storage, and give spare food to food banks.|It is wrong to waste food while others go without. Buy what you need, eat leftovers and never mock someone for being hungry.~Healthy soil, mixed crops and less food waste mean less forest cleared and fewer greenhouse gases from rotting food.|Smart farming also saves water and protects bees, rivers and wildlife.
+Good Health~Many people cannot reach a doctor, clean water or vaccines, so illnesses that are easy to treat can become deadly.|Dirty air, unsafe water and stress also make people sick, and sick parents cannot work or care for their children.~Vaccines, clinics, clean water and mental health care save lives, and every person deserves care, rich or poor.|Be kind to the sick, wash your hands, and never spread rumours that stop people getting help.~Cleaner air and water mean fewer illnesses and fewer medicines to make, ship and throw away.|Walking, cycling and green parks keep people fit and cut traffic pollution.
+Quality Education~Millions of children cannot go to school because of poverty, war, distance, or because they are girls or have a disability.|Without learning, it is harder to get a fair job, protect your health or understand what is going on in the world.~Free, safe schools, trained teachers, books and internet access open doors. Share what you know and lend your books.|Every child has the right to learn, so never laugh at someone who struggles. Help them catch up.~Educated people learn about farming, energy and waste, and make better choices for nature.|Many green solutions, like solar tech, recycling ideas and better crops, start in classrooms.
+Gender Equality~In many places girls and women get fewer chances to study, earn money, own land or speak in public, and some face violence.|When half the people cannot use their talents, families and whole countries lose out.~Give the same chances to everyone: equal pay, safe schools, shared housework and zero tolerance for violence.|Respect is the rule. Listen to every voice and challenge unfair jokes and bullying.~When women farmers and leaders get land and training, harvests grow and communities look after forests and water better.|Fairer decisions mean smarter climate and nature plans.
+Clean Water~Billions of people lack safe drinking water or a clean toilet, and dirty water spreads diseases like cholera.|Many children, often girls, walk for hours to fetch water instead of going to school.~Build wells and pipes, treat water, and teach handwashing. Water is a human right, never a luxury for the rich.|Do not waste or pollute it, and share what you have in a drought.~Clean rivers keep fish, frogs and plants alive, and treating waste water stops chemicals reaching the sea.|Saving water also saves the energy used to pump, clean and heat it.
+Clean Energy~Many people still have no electricity or cook on smoky fires that harm their lungs, and burning coal, oil and gas heats the planet.|Without power, clinics cannot keep vaccines cold and children cannot study after dark.~Share solar, wind and water power, make homes use less energy, and keep prices fair so poor families get power too.|Turn off lights, unplug chargers and support clean energy even when it costs a little more.~Clean energy cuts smoke and greenhouse gases, so air is healthier and the planet warms more slowly.|Fewer mines and oil spills protect land and seas.
+Decent Work~Many people work very long hours for tiny pay in unsafe places, and some children are forced to work.|Without fair jobs, families cannot save, and young people lose hope.~Pay a fair wage, keep workplaces safe, allow rest, and end child labour. Every worker deserves respect.|Buy from fair businesses and say thank you to the people who make, grow and clean things for us.~Green jobs in repair, recycling and solar give people work and heal nature at the same time.|Fairly treated workers can care for the land, while exploited workers are pushed to cut corners that pollute.
+Industry & Innovation~Many places lack safe roads, power, internet and clean factories, so ideas and goods cannot travel and people stay cut off.|Old factories burn lots of fuel and make a lot of waste.~Build strong infrastructure that is fair to all, share useful technology, and help small businesses grow.|Inventors should put people first, test ideas safely and be honest about the risks.~Clean factories, efficient machines and smart design use less energy and make less waste.|Innovation gives us solar panels, electric buses and recycling robots that protect nature.
+Reduced Inequalities~Some people have far more money, safety and chances than others, just because of where or to whom they were born.|Being left out because of race, religion, disability or gender hurts people and holds them back.~Include everyone: fair laws and taxes, equal access to school and health, and kindness in the playground.|Never exclude or mock others, and stand up for the one being left out.~When everybody has a voice, communities choose better ways to care for shared land, water and air.|Poorer neighbourhoods often get the most pollution, so fairness also means cleaner air for all.
+Sustainable Cities~Many cities have crowded homes, heavy traffic, dirty air and no safe parks, and millions live in places that flood easily.|Cars and rubbish pile up faster than cities can manage.~Plan safe, affordable homes, reliable buses, bike lanes and green spaces for everyone.|Be a good neighbour, keep streets clean and welcome people from every background.~Public transport, walking and trees cut smoke and heat, and parks and green roofs soak up rain.|Well planned cities leave more wild land untouched.
+Responsible Consumption~We make, buy and throw away more than the planet can renew, so waste, plastic and old clothes pile up in landfills and seas.|Making new things uses water, energy and raw materials.~Buy only what you need, repair, reuse and recycle, and pay fair prices so workers are not harmed.|It is right to avoid waste while others have too little, and to be honest about what we buy.~Less waste means fewer mines, factories, trucks and landfills, which cuts pollution and saves habitats.|Composting turns food scraps back into healthy soil.
+Climate Action~Burning coal, oil and gas adds heat-trapping gases to the air, so the planet warms and storms, droughts and floods get stronger.|Poor communities, who did the least to cause it, often suffer first.~Use clean energy, plant trees, waste less and help the countries hit hardest. Tell the truth about the science.|We owe future children a safe planet, so we act together, not just alone.~Cutting pollution calms the weather, protects coasts, reefs and forests, and keeps crops growing.|Every degree of warming we prevent saves homes and wildlife.
+Life Below Water~Plastic, oil, chemicals and overfishing are harming the oceans, and turtles, whales and seabirds get tangled in or eat plastic.|Warmer, more acidic seas also damage coral reefs where many fish live.~Never litter, avoid single-use plastic, choose sustainable seafood and support clean-ups and protected ocean areas.|Fishing communities must be treated fairly while we protect the sea.~Healthy oceans make much of the oxygen we breathe, feed millions of people and soak up carbon.|Mangroves and reefs also shield coasts from storms.
+Life on Land~Forests are being cut for farms, roads and mining, and many animals are losing their homes. Some species are close to disappearing.|Dry, damaged land cannot grow food.~Protect forests, plant native trees, stop illegal hunting and trade, and respect the Indigenous peoples who guard nature.|Take only photos, leave only footprints.~Trees give us oxygen, cool the air, hold soil and water, and store carbon.|Healthy forests keep rivers clean and protect the bees and birds that help grow our food.
+Peace & Justice~War, violence, corruption and unfair courts make people flee their homes and fear speaking up.|Children in conflict miss school and may be hurt or forced to fight.~Solve problems by talking and listening, make laws fair for all, and protect refugees. Honesty and justice build trust.|Say no to bullying and stand with those being treated badly.~War destroys forests, poisons water and wastes huge amounts of resources. Peace lets people rebuild and care for nature.|Fair, honest governments are also better at stopping illegal logging and pollution.
+Partnerships~Big problems like hunger, disease and climate cross borders, so no country, school or family can fix them alone.|Poorer countries often lack the money, tools and know-how to act.~Share money, technology and ideas fairly. Governments, businesses, schools and young people each have a part.|Keep your promises and be a good teammate.~When people work together they protect forests, clean oceans and share clean energy faster.|Shared science, shared data and shared rules help nature everywhere.`.split('\n').map(g=>g.split('~').slice(1).map(c=>c.split('|')));
+const $=id=>document.getElementById(id);let mode='play';
+// ---- scene
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,1.5));R.setSize(innerWidth,innerHeight);document.body.appendChild(R.domElement);
+const S=new THREE.Scene();S.background=new THREE.Color(0x8fd3ff);S.fog=new THREE.Fog(0x8fd3ff,60,170);
+const C=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,300);
+S.add(new THREE.HemisphereLight(0xffffff,0x88aa66,.9));const sun=new THREE.DirectionalLight(0xfff2cc,.8);sun.position.set(20,40,10);S.add(sun);
+const M=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c},o||{}));
+const add=(g,m,x,y,z,p)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);(p||S).add(o);return o};
+add(new THREE.CylinderGeometry(28,28,3,48),M(0x2f4a3c),0,-1.5,0);
+add(new THREE.ConeGeometry(28,22,48),M(0x333846),0,-14,0).rotation.x=Math.PI;
+add(new THREE.CylinderGeometry(8,8,.2,40),M(0x59627a),0,.05,0);
+// central fountain tree of life
+add(new THREE.CylinderGeometry(.6,.9,4,10),M(0x8b5a2b),0,2,0);add(new THREE.SphereGeometry(2.6,16,12),M(0x1fb6a0,{emissive:0x0a5a50}),0,5.5,0);
+// decor: trees, flowers
+for(let i=0;i<22;i++){const a=i/22*6.283+.1,r=25.5,x=Math.cos(a)*r,z=Math.sin(a)*r;
+ add(new THREE.CylinderGeometry(.25,.35,1.6,6),M(0x8b5a2b),x,.8,z);add(new THREE.ConeGeometry(1.2,3,8),M(i%2?0x1f4a36:0x2a5c44),x,2.8,z)}
+for(let i=0;i<60;i++){const a=Math.random()*6.283,r=10+Math.random()*14;add(new THREE.SphereGeometry(.22,6,6),M([0x3a4a5f,0x4a5f78,0x2f3b4c,0x00e5ff][i%4]),Math.cos(a)*r,.25,Math.sin(a)*r)}
+// rainbow
+
+// clouds
+const clouds=[];for(let i=0;i<28;i++){const g=new THREE.Group();for(let j=0;j<4;j++)add(new THREE.SphereGeometry(2+Math.random()*2,10,8),M(0x8a96ad,{transparent:true,opacity:.35}),j*2.6-4,Math.random(),Math.random()*2,g);
+ const a=Math.random()*6.283,r=40+Math.random()*80;g.position.set(Math.cos(a)*r,-8+Math.random()*30,Math.sin(a)*r);S.add(g);clouds.push(g)}
+// balloons & floating mini islands
+const fl=[];for(let i=0;i<9;i++){const a=i/9*6.283,r=34+Math.random()*8,b=add(new THREE.SphereGeometry(.7,12,10),M([0x00e5ff,0x7a5cff,0x00ffa3,0xff3b6b][i%4],{emissive:0x113344}),Math.cos(a)*r,6+Math.random()*8,Math.sin(a)*r);fl.push(b)}
+for(let i=0;i<5;i++){const a=i*1.3+.5,r=48+i*3,g=new THREE.Group();add(new THREE.CylinderGeometry(4,4,1,16),M(0x6fd36f),0,0,0,g);add(new THREE.ConeGeometry(4,5,16),M(0x8b5a2b),0,-3,0,g).rotation.x=Math.PI;add(new THREE.ConeGeometry(1,2.5,8),M(0x2fa84f),0,2,0,g);g.position.set(Math.cos(a)*r,-12+i*1.5,Math.sin(a)*r);S.add(g);fl.push(g)}
+// portals
+const P=[];D.forEach((d,i)=>{const a=i/17*6.283,x=Math.cos(a)*18,z=Math.sin(a)*18,g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=-a+Math.PI/2;
+ add(new THREE.CylinderGeometry(1.8,2.2,.5,16),M(d[2]),0,.25,0,g);
+ const ring=add(new THREE.TorusGeometry(2,.28,12,32),M(d[2],{emissive:d[2],emissiveIntensity:.5}),0,3,0,g);
+ add(new THREE.CircleGeometry(1.9,32),M(d[2],{transparent:true,opacity:.35,side:2}),0,3,0,g);
+ const cv=document.createElement('canvas');cv.width=cv.height=256;const t=cv.getContext('2d');t.fillStyle=d[2];t.fillRect(0,0,256,256);t.fillStyle='#fff';t.textAlign='center';t.font='bold 110px Arial';t.fillText(i+1,128,120);t.font='80px Arial';t.fillText(d[1],128,220);
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));sp.scale.set(2.6,2.6,1);sp.position.y=6.4;g.add(sp);S.add(g);P.push({g,ring,x,z,i,sp})});
+// player
+const pl=new THREE.Group();add(new THREE.BoxGeometry(1,1.2,.6),M(0x2f7bff),0,1.9,0,pl);add(new THREE.SphereGeometry(.5,14,12),M(0xffcf9e),0,3.0,0,pl);add(new THREE.SphereGeometry(.52,14,8,0,6.283,0,1.4),M(0x3b2314),0,3.05,0,pl);
+add(new THREE.SphereGeometry(.07,6,6),M(0),-.17,3.05,.46,pl);add(new THREE.SphereGeometry(.07,6,6),M(0),.17,3.05,.46,pl);
+const mk=(x,y,c)=>{const j=new THREE.Group();j.position.set(x,y,0);add(new THREE.BoxGeometry(.35,1,.35),M(c),0,-.5,0,j);pl.add(j);return j};
+const lL=mk(-.28,1.3,0x234),lR=mk(.28,1.3,0x234),aL=mk(-.68,2.4,0xffcf9e),aR=mk(.68,2.4,0xffcf9e);S.add(pl);pl.position.set(0,0,6);pl.scale.set(.9,.9,.9);let eL,eR,kL,kR,nL,nR;
+// input
+const K={};addEventListener('keydown',e=>{K[e.key.toLowerCase()]=1;if(e.key.toLowerCase()==='e'&&near&&mode==='play')openQuest(near.i)});addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
+addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()});
+let near=null,t0=performance.now(),wt=0;
+$('enter').onclick=()=>near&&openQuest(near.i);
+function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-t0)/1000,.05);t0=now;const T=now/1000;
+ let dx=(K.d?1:0)-(K.a?1:0)+JX,dz=(K.s?1:0)-(K.w?1:0)+JZ;const mv=(dx||dz)&&mode==='play';if(mode==='play')physics(dt,dx,dz,mv);
+ if(mv&&gr){wt+=dt*12;lL.rotation.x=Math.sin(wt)*.8;lR.rotation.x=-Math.sin(wt)*.8;aL.rotation.x=-Math.sin(wt)*.8;aR.rotation.x=Math.sin(wt)*.8}else if(!gr){lL.rotation.x=.6;lR.rotation.x=-.4;aL.rotation.x=aR.rotation.x=-2.5}else{lL.rotation.x=lR.rotation.x=aL.rotation.x=aR.rotation.x=0}
+ if(typeof FXU==='function'){try{FXU(dt)}catch(e){if(!window.FXE){window.FXE=1;console.error(e)}}}{const rn=mv&&gr;kL.rotation.x=rn?Math.max(0,-Math.cos(wt))*1.1:!gr?.9:0;kR.rotation.x=rn?Math.max(0,Math.cos(wt))*1.1:!gr?.4:0;eL.rotation.x=rn?-.9-Math.sin(wt)*.25:!gr?-.35:-.1;eR.rotation.x=rn?-.9+Math.sin(wt)*.25:!gr?-.35:-.1;nL.rotation.x=nR.rotation.x=rn?.2:0}
+ if(LOB)camYaw=T*.25;C.position.lerp(new THREE.Vector3(pl.position.x+Math.sin(camYaw)*(LOB?7:13),pl.position.y+(LOB?3.2:camH),pl.position.z+Math.cos(camYaw)*(LOB?7:13)),.08);C.lookAt(pl.position.x,pl.position.y+2,pl.position.z);C.fov+=((boostT>0?78:60)-C.fov)*Math.min(1,dt*6);C.updateProjectionMatrix();
+ near=null;P.forEach(p=>{p.ring.rotation.y=T*1.5;p.sp.position.y=6.4+Math.sin(T*2+p.i)*.3;if(Math.hypot(p.x-pl.position.x,p.z-pl.position.z)<3.6&&Math.abs(pl.position.y-p.y)<2.5)near=p});if(!near&&Math.hypot(pl.position.x-BX,pl.position.z-BZ)<17&&Math.abs(pl.position.y-ARY)<8)near=BOSSP;;
+ BM.emissiveIntensity=.7+.5*Math.sin(T*9);if(RB){SM.color.setHSL(T%3/3,1,.55);HM.color.setHSL((T+1)%3/3,1,.5)}orb.rotation.y=T*2;blob.position.set(pl.position.x,LY+.04,pl.position.z);blob.scale.setScalar(Math.max(.4,1-(pl.position.y-LY)*.12));clouds.forEach((c,i)=>c.position.x+=Math.sin(i)*.4*dt);fl.forEach((b,i)=>b.position.y+=Math.sin(T+i)*.01);
+ $('enter').textContent=near&&near.i<0?'😤 Challenge the Boss (E)':'🚪 Enter Quest (E)';$('enter').style.display=near&&mode==='play'?'block':'none';R.render(S,C)}
+requestAnimationFrame(loop);
+// ---- state, skins, shop, levels
+const EX=`Which helps fight poverty?|Fair jobs and schools|Wasting money|Closing schools
+What can you do to help?|Share and donate|Hoard everything|Ignore others
+Which saves food?|Eat leftovers|Throw it away|Hide it
+Farmers need...|Clean water and soil|Plastic|Smoke
+Washing hands stops...|Germs|Rain|Music
+What helps you grow?|Plenty of sleep|No sleep|Only naps in class
+Which helps learning?|Reading books|Skipping school|Never asking
+Who can go to school?|Every child|Only rich kids|Only adults
+Can girls be scientists?|Yes|No|Only boys
+Fair means...|Same chances for all|Different rules|No rules
+Dirty water can cause...|Sickness|Superpowers|Snow
+Safest to drink?|Clean filtered water|Pond water|Puddles
+Which energy never runs out?|Wind|Coal|Oil
+Switching off lights...|Saves energy|Wastes energy|Scares bats
+Fair work means...|Fair pay|No pay|Unsafe work
+Safe jobs protect...|Workers|Nobody|Only bosses
+Innovation helps us...|Solve problems|Make trash|Stay stuck
+Which is clean tech?|Electric bus|Smoky truck|Burning tires
+Inclusive means...|Everyone plays|Some leave|Only friends
+If someone is left out you...|Invite them|Laugh|Ignore them
+A green city has...|Cycle lanes|More smog|No parks
+Which cuts pollution?|Public bus|Many cars|Burning trash
+Recycling paper...|Saves trees|Makes noise|Wastes more
+Reusable bottles are...|Better than single-use|Worse|Pointless
+Planting trees helps...|Cool the planet|Heat it|Nothing
+Clean energy fights...|Climate change|Homework|Sleep
+Turtles may mistake plastic for...|Food|Toys|Homes
+Who lives below water?|Fish|Cows|Camels
+Forests are home to...|Animals|Only cars|Nothing
+Trees give us...|Oxygen|Smoke|Noise
+Peace means...|Living safely together|Fighting|Shouting
+Fair rules help...|Everyone|Nobody|Bullies
+Partnerships mean...|Working together|Working alone|Competing
+Who can help the goals?|Everyone|Nobody|Only presidents`.split('\n').map(l=>l.split('|'));
+// name, price, color, points multiplier, speed, flags (a=aura c=crown w=wings r=rainbow)
+const SK=[['Rookie Blue',0,0x31405f,1,9,''],['Leaf Green',80,0x2f5a46,1.2,10,''],['Cool Cap',200,0x8a4b1e,1.4,11,'k'],['Ocean Wave',400,0x1f6f8a,1.7,12,'a'],['Solar King',700,0xb8902a,2,13,'c'],['Caped Hero',1100,0x8a1f2b,2.4,14,'p'],['Forest Guardian',1700,0x264d34,2.9,15.5,'wp'],['Royal Violet',2500,0x4b2f7a,3.5,17,'cpa'],['Angel Light',3500,0xdfe3ee,4.2,18.5,'hwa'],['Galaxy Hero',5000,0x1a1a6e,5,20,'cwpat'],['Dragon Lord',6500,0x7a0c0c,6,22,'epwat'],['Neon Phantom',8000,0x0e0f14,8,25,'cwpat'],['Storm Warden',10000,0x4a5470,9,26,'patT'],['Arc Vanguard',12000,0x3a2a7a,10,27,'Va'],['Crimson Ronin',14000,0x1b1f27,11,28,'R'],['Shadow Shinobi',16000,0x101116,12,31,'N'],['Odin Allfather',20000,0x2b3a6b,14,30,'Op']];
+const SHA=(()=>{const K=[],H0=[];for(let p=2,n=0;n<64;p++){let ok=1;for(let i=2;i*i<=p;i++)if(p%i==0){ok=0;break}if(ok){if(n<8)H0[n]=Math.floor(Math.sqrt(p)%1*4294967296)|0;K[n++]=Math.floor(Math.cbrt(p)%1*4294967296)|0}}
+const R=(x,n)=>(x>>>n)|(x<<(32-n));
+return m=>{const l=m.length,nb=((l+9+63)>>6)<<6,b=new Uint8Array(nb);b.set(m);b[l]=128;const dv=new DataView(b.buffer);dv.setUint32(nb-4,(l*8)>>>0);dv.setUint32(nb-8,Math.floor(l/536870912));const H=H0.slice(),w=new Int32Array(64);
+for(let o=0;o<nb;o+=64){for(let i=0;i<16;i++)w[i]=dv.getInt32(o+i*4);for(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(R(a,7)^R(a,18)^(a>>>3))+w[i-7]+(R(c,17)^R(c,19)^(c>>>10)))|0}
+let[a,bb,c,d,e,f,g,h]=H;for(let i=0;i<64;i++){const t1=(h+(R(e,6)^R(e,11)^R(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0,t2=((R(a,2)^R(a,13)^R(a,22))+((a&bb)^(a&c)^(bb&c)))|0;h=g;g=f;f=e;e=(d+t1)|0;d=c;c=bb;bb=a;a=(t1+t2)|0}
+[a,bb,c,d,e,f,g,h].forEach((v,i)=>H[i]=(H[i]+v)|0)}
+const out=new Uint8Array(32),ov=new DataView(out.buffer);H.forEach((v,i)=>ov.setInt32(i*4,v));return out}})();
+const hm=(k,m)=>{if(k.length>64)k=SHA(k);const ip=new Uint8Array(64+m.length),op=new Uint8Array(96);ip.fill(54,0,64);op.fill(92,0,64);k.forEach((v,i)=>{ip[i]^=v;op[i]^=v});ip.set(m,64);op.set(SHA(ip),64);return SHA(op)};
+const SEC=(()=>{const te=new TextEncoder(),td=new TextDecoder(),cat=(...a)=>{const o=new Uint8Array(a.reduce((s,x)=>s+x.length,0));let p=0;a.forEach(x=>{o.set(x,p);p+=x.length});return o},b64=u=>{let s='';u.forEach(v=>s+=String.fromCharCode(v));return btoa(s)},ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const key=()=>{let d='';try{d=localStorage.getItem('sdgk')||'';if(!d){d=b64(crypto.getRandomValues(new Uint8Array(24)));localStorage.setItem('sdgk',d)}}catch(e){}return te.encode('SDGSkyQuest|v1|'+d)};
+const ks=(k,n,len)=>{const o=new Uint8Array(len);for(let c=0,p=0;p<len;c++){const bl=SHA(cat(k,n,new Uint8Array([c&255,c>>8])));for(let i=0;i<32&&p<len;i++)o[p++]=bl[i]}return o};
+const same=(a,b)=>{let r=a.length^b.length;for(let i=0;i<a.length;i++)r|=a[i]^b[i];return r===0};
+return{enc(o){const k=key(),n=crypto.getRandomValues(new Uint8Array(12)),pt=te.encode(JSON.stringify(o)),st=ks(k,n,pt.length),ct=pt.map((v,i)=>v^st[i]);return'E1.'+b64(cat(n,ct,hm(k,cat(n,ct))))},
+dec(s){try{const u=ub(s.slice(3)),n=u.slice(0,12),ct=u.slice(12,u.length-32),tag=u.slice(u.length-32),k=key();if(!same(tag,hm(k,cat(n,ct))))return null;const st=ks(k,n,ct.length);return JSON.parse(td.decode(ct.map((v,i)=>v^st[i])))}catch(e){return null}},
+load(){let r=null;try{r=localStorage.getItem('sdgq')}catch(e){}if(!r)return{};if(r.startsWith('E1.'))return this.dec(r)||{};let mig=null;try{mig=localStorage.getItem('sdgm')}catch(e){}if(mig)return{};try{const o=JSON.parse(r);try{localStorage.setItem('sdgm','1')}catch(e){}this.save(o);return o}catch(e){return{}}},
+save(o){try{localStorage.setItem('sdgq',this.enc(o))}catch(e){}}}})();
+
+let sv={pts:0,lv:{},own:[0],eq:0};try{Object.assign(sv,SEC.load())}catch(e){}
+sv.vis=sv.vis||[];sv.cfg=sv.cfg||{hard:1,free:1};
+const save=()=>{try{SEC.save(sv)}catch(e){}if(typeof cloudPush==='function')cloudPush()};
+let SP=9,RB=false;const clr=g=>{while(g.children.length)g.remove(g.children[0])};
+[...pl.children].forEach(c=>{if(![lL,lR,aL,aR].includes(c))pl.remove(c)});[lL,lR,aL,aR].forEach(clr);
+const SM=M(0x31405f),PM=M(0x2a3b6b),HM=M(0x3b2314),SKN=M(0xd9a982),WH=M(0xf2f2f2),DK=M(0x15171c),SP1=new THREE.SphereGeometry(1,20,14),
+ E=(g,m,x,y,z,sx,sy,sz,p)=>{const o=add(g,m,x,y,z,p||pl);o.scale.set(sx,sy,sz);return o},
+fx=new THREE.Group(),orb=new THREE.Group(),BG=new THREE.Group(),HG=new THREE.Group(),HA=new THREE.Group(),J=M(0xaeb7c8,{emissive:0x151b28}),mkj=(p,y)=>{const g=new THREE.Group();g.position.y=y;p.add(g);return g};
+pl.add(fx);pl.add(orb);pl.add(BG);pl.add(HG);HG.add(HA);BG.scale.set(.97,.75,.68);BG.position.y=1.225;HG.position.y=3.97;HG.scale.setScalar(.64);
+eL=mkj(aL,-.62);eR=mkj(aR,-.62);kL=mkj(lL,-1.0);kR=mkj(lR,-1.0);nL=mkj(kL,-.95);nR=mkj(kR,-.95);
+// ---- full-grown hero: broad shoulders, narrow waist, strong legs; joints at shoulders, elbows, knees and ankles
+add(new THREE.CylinderGeometry(.42,.34,.7,20),SM,0,2.55,0,pl);E(SP1,SM,0,3.0,0,.6,.5,.34);E(SP1,PM,0,2.25,0,.46,.28,.28);
+add(new THREE.CylinderGeometry(.13,.15,.32,10),SKN,0,3.62,0,pl);
+add(new THREE.TorusGeometry(.4,.045,6,20),DK,0,2.42,0,pl).rotation.x=Math.PI/2;add(new THREE.BoxGeometry(.11,1,.05),DK,0,2.95,.35,pl).rotation.z=.5;
+// head: one smooth oval (no jawline), eyes, brows, nose, lips, ears, swept hair
+E(SP1,SKN,0,0,0,.46,.62,.52,HG);
+[-1,1].forEach(k=>{E(SP1,SKN,k*.46,0,0,.09,.15,.12,HG);E(SP1,HM,k*.46,-.04,.12,.06,.2,.08,HG)});
+add(new THREE.ConeGeometry(.05,.26,6),SKN,0,-.03,.5,HG).rotation.x=-.2;E(SP1,SKN,0,-.15,.55,.075,.06,.07,HG);
+add(new THREE.SphereGeometry(1,20,12,0,6.283,0,1.55),HM,0,.06,0,HG).scale.set(.5,.66,.58);add(new THREE.BoxGeometry(.66,.16,.2),HM,0,.44,.34,HG).rotation.x=-.3;E(SP1,HM,0,0,-.3,.46,.57,.3,HG);
+aL.position.set(-.74,3.4,0);aR.position.set(.74,3.4,0);lL.position.set(-.26,2.2,0);lR.position.set(.26,2.2,0);aL.rotation.z=-.05;aR.rotation.z=.05;
+[[aL,eL],[aR,eR]].forEach(([s,e])=>{E(SP1,J,0,0,0,.22,.22,.22,s);add(new THREE.CylinderGeometry(.16,.13,.6,12),SM,0,-.32,0,s);E(SP1,SM,0,-.25,.03,.17,.27,.17,s);
+ E(SP1,J,0,0,0,.14,.14,.14,e);add(new THREE.CylinderGeometry(.13,.09,.56,12),SM,0,-.3,0,e);E(SP1,SM,0,-.17,0,.14,.22,.14,e);E(SP1,DK,0,-.7,.02,.12,.16,.1,e);E(SP1,DK,0,-.62,.1,.05,.07,.06,e)});
+[[lL,kL,nL],[lR,kR,nR]].forEach(([h,k,n])=>{add(new THREE.CylinderGeometry(.22,.17,1,12),PM,0,-.5,0,h);E(SP1,PM,0,-.4,.03,.21,.36,.2,h);
+ E(SP1,J,0,0,0,.19,.19,.19,k);add(new THREE.CylinderGeometry(.17,.11,.95,12),PM,0,-.48,0,k);E(SP1,PM,0,-.3,-.05,.17,.32,.17,k);
+ E(SP1,J,0,0,0,.13,.13,.13,n);add(new THREE.BoxGeometry(.32,.24,.66),DK,0,-.13,.12,n)});
+const HMR=new THREE.Group();HMR.visible=false;eR.add(HMR);HMR.position.y=.35;
+add(new THREE.CylinderGeometry(.07,.07,1.1,8),M(0x111111),0,-1.05,.5,HMR).rotation.x=Math.PI/2;add(new THREE.BoxGeometry(.9,.55,.55),M(0x0b0b0e,{emissive:0x050508}),0,-1.05,1.15,HMR);add(new THREE.BoxGeometry(.2,.2,.2),M(0x6fd0ff,{emissive:0x4fb0ff}),0,-1.05,1.48,HMR);
+const GD=M(0xc9a227,{emissive:0x3a2a05}),SV=M(0xc0c8d8,{emissive:0x222a3a}),BK=M(0x0b0c10),WPL=new THREE.Group();eL.add(WPL);WPL.position.y=.35;
+add(new THREE.CylinderGeometry(.05,.05,3.6,8),M(0x2a2f3a),0,-.4,.15,WPL);add(new THREE.ConeGeometry(.12,.5,6),SV,0,1.65,.15,WPL);
+function applySkin(){const s=SK[sv.eq],f=(window.CF=s[5]),A=(g,m,x,y,z,p)=>p?add(g,m,x,y,z,p):y>=3.2?add(g,m,x,y-3.55,z,HA):add(g,m,x,y,z,BG);SM.color.set(s[2]);HM.color.set(0x3b2314);SP=8+(s[4]-9)*.22;RB=f.includes('r');clr(fx);clr(orb);clr(BG);clr(HA);PM.color.copy(SM.color).multiplyScalar(.45);{const ac=new THREE.Color(s[2]).offsetHSL(.5,0,.2);if(sv.eq>1)A(new THREE.SphereGeometry(.13,8,8),M(ac,{emissive:ac,emissiveIntensity:.8}),0,2.65,.5);if(sv.eq>5)[-1,1].forEach(k=>A(new THREE.SphereGeometry(.38,10,8),M(0xb8c0d0,{emissive:0x222a3a}),k*.76,2.95,0).scale.set(1.1,.7,1))}
+ if(f.includes('k')){A(new THREE.SphereGeometry(.7,14,8,0,6.283,0,1.3),M(0xe5243b),0,3.65,0).scale.set(.76,.92,.86);A(new THREE.BoxGeometry(.8,.06,.5),M(0xb81d2f),0,3.78,.55)}
+ if(f.includes('c'))A(new THREE.ConeGeometry(.38,.6,5),M(0xffd400,{emissive:0xaa8800}),0,4.45,0);
+ if(f.includes('h'))A(new THREE.TorusGeometry(.5,.06,8,24),M(0xfff3a0,{emissive:0xffd400}),0,4.6,0).rotation.x=Math.PI/2;
+ if(f.includes('e'))[-1,1].forEach(k=>A(new THREE.ConeGeometry(.12,.5,6),M(0xffd0a0),k*.32,4.1,0).rotation.z=-k*.4);
+ if(f.includes('p'))A(new THREE.BoxGeometry(1.2,1.9,.08),M(0xd81e2b),0,1.8,-.78).rotation.x=.18;
+ if(f.includes('w'))[-1,1].forEach(k=>{A(new THREE.BoxGeometry(1.3,1.7,.08),M(0xffffff,{emissive:0x999999}),k*1,2.5,-.55).rotation.z=-k*.5});
+ if(f.includes('a'))A(new THREE.TorusGeometry(1.1,.08,8,28),M(0x66ffff,{emissive:0x33cccc}),0,.15,0,fx).rotation.x=Math.PI/2;
+ if(f.includes('t'))for(let k=0;k<7;k++)add(new THREE.SphereGeometry(.12,6,6),M(0xfff1a0,{emissive:0xffd400}),Math.cos(k*.9)*1.4,.8+k*.45,Math.sin(k*.9)*1.4,orb);
+ HMR.visible=f.includes('T');if(f.includes('T')){SM.color.set(0x4a5470);HM.color.set(0xe3c15f);
+  A(new THREE.SphereGeometry(.7,16,10,0,6.283,1.75,1.3),M(0xb5651d),0,3.45,.05).scale.set(.78,.95,.9);
+  A(new THREE.TorusGeometry(.52,.05,6,20),M(0xc0c8d8,{emissive:0x333a50}),0,3.95,0).rotation.x=Math.PI/2;
+  A(new THREE.BoxGeometry(.9,.8,.15),M(0xaab4c8,{emissive:0x222a3a}),0,2.7,.5);
+  A(new THREE.BoxGeometry(.8,1.3,.2),M(0xe3c15f),0,3.2,-.52);
+  for(let k=0;k<6;k++)add(new THREE.SphereGeometry(.1,6,6),M(0x9fd8ff,{emissive:0x4fb0ff}),Math.cos(k*1.05)*1.1,1+k*.5,Math.sin(k*1.05)*1.1,orb)}
+ WPL.visible=f.includes('O');
+ if(f.includes('T')){A(new THREE.SphereGeometry(.72,16,10,0,6.283,0,1.75),M(0xd9b44a),0,3.58,-.04).scale.set(.76,.9,.84);[-1,1].forEach(k=>A(new THREE.BoxGeometry(.18,1,.3),M(0xd9b44a),k*.5,3.2,0))}
+
+ if(f.includes('V')){HM.color.set(0x1a1a1a);const RD=M(0x4a2b8f,{emissive:0x140a30}),GL=M(0xc9d3e6,{emissive:0x1b2740}),EY=M(0xffe2a0,{emissive:0xffb347,emissiveIntensity:1}),SG=new THREE.SphereGeometry(1,24,16),Q=(g,m,x,y,z)=>A(g,m,x,y,z,HA);
+  Q(SG,RD,0,.05,-.05).scale.set(.64,.8,.68);Q(SG,GL,0,-.05,.47).scale.set(.38,.58,.16);Q(SG,GL,0,.42,.48).scale.set(.3,.17,.14);Q(SG,GL,0,-.5,.4).scale.set(.18,.13,.17);
+  [-1,1].forEach(k=>{Q(SG,GL,k*.27,-.2,.44).scale.set(.12,.28,.14);Q(new THREE.CylinderGeometry(.16,.16,.06,14),GL,k*.55,0,0).rotation.z=Math.PI/2;Q(new THREE.BoxGeometry(.2,.07,.05),EY,k*.2,.12,.67).rotation.z=k*.28});
+  Q(new THREE.BoxGeometry(.05,.3,.07),GL,0,-.06,.7);Q(new THREE.BoxGeometry(.2,.025,.05),M(0x222222),0,-.34,.62);
+  A(new THREE.SphereGeometry(.2,12,10),M(0x7fe9ff,{emissive:0x39d0ff}),0,2.65,.46);A(new THREE.TorusGeometry(.27,.04,6,16),M(0xc9d3e6),0,2.65,.5)}
+ if(f.includes('R')){A(new THREE.SphereGeometry(.72,16,10,0,6.283,0,1.45),M(0x15171c),0,3.6,0).scale.set(.78,.9,.86);A(new THREE.TorusGeometry(.4,.05,6,16,Math.PI),GD,0,4.1,.32);
+  A(new THREE.BoxGeometry(.07,2.3,.05),SV,0,2.4,-.55).rotation.z=-.65;A(new THREE.BoxGeometry(.09,.5,.09),M(0x7a1218),.84,3.52,-.55,BG).rotation.z=-.65;A(new THREE.TorusGeometry(.5,.09,6,16),M(0x9b1c24),0,1.8,0).rotation.x=Math.PI/2}
+ if(f.includes('N')){HM.color.set(0x111116);A(new THREE.BoxGeometry(.85,.45,.25),BK,0,3.32,.4);A(new THREE.TorusGeometry(.52,.06,6,20),M(0x2f4a7a),0,3.88,0).rotation.x=Math.PI/2;A(new THREE.BoxGeometry(.3,.2,.05),SV,0,3.88,.54);
+  [-1,1].forEach(k=>{A(new THREE.BoxGeometry(.3,.1,1.2),M(0x7a1218),k*.2,3.15,-.75).rotation.x=.3;A(new THREE.BoxGeometry(.07,2,.05),SV,0,2.4,-.55).rotation.z=k*.6})}
+ if(f.includes('O')){HM.color.set(0xbfc5cf);A(new THREE.ConeGeometry(.4,1.2,10),M(0xc9ced8),0,2.85,.3).rotation.x=Math.PI;A(new THREE.CylinderGeometry(.8,.8,.07,18),M(0x1d2540),0,4.05,0);A(new THREE.ConeGeometry(.46,.9,14),M(0x1d2540),0,4.5,0);A(new THREE.SphereGeometry(.2,10,8),BK,-.2,3.62,.5).scale.set(.7,.6,.4)}
+}
+const lvN=()=>Object.keys(sv.lv).filter(k=>!k.includes('b')).length;
+function hud(){const s=SK[sv.eq];$('st').innerHTML=`<b>${lvN()}</b>/51 &nbsp;·&nbsp; <b>${sv.inf?'∞':sv.pts}</b> ✨ sparks &nbsp;·&nbsp; ×${s[3]}`;P.forEach(p=>{if([0,1,2].every(l=>sv.lv[p.i+'-'+l]))p.sp.material.color.set(0xffee66)});if(typeof lightB==='function')lightB();if(typeof gatesUpdate==='function')gatesUpdate()}
+const conf=()=>{for(let k=0;k<26;k++){const b=document.createElement('div');b.className='b';b.style.pointerEvents='none';b.textContent=['🎉','⭐','🎊','✨'][k%4];b.style.left=Math.random()*95+'%';b.style.animationDuration=2+Math.random()*2+'s';card.appendChild(b)}};
+let tm;const card=$('card');
+function show(c){try{document.exitPointerLock()}catch(e){}$('ov').style.display='flex';card.style.background=c}
+function close(){$('ov').style.display='none';if(LOB)setTimeout(lobby,0);else mode='play';cancelAnimationFrame(vf);clearInterval(tm);hud();save()}
+$('shopb').onclick=()=>mode==='play'&&shop();
+const SC=`#ffb199,#ffecd2,#8b5a2b|🪙R 👨‍👩‍👧W 🏠G
+#cdeffd,#fff5c2,#7a5a2b|🌱G 🍎R 🍞F
+#d4f5e9,#fffbe0,#4c9f38|💉F 🍎R 🏃W
+#ffd6d6,#fff2e0,#8a5a3c|📚R ✏️F 🎒W
+#ffd1e8,#e8e0ff,#6a4bff|👧W 👦W ⭐O
+#9fe3ff,#e8fbff,#26a0c8|💧R 🚰G 🐟F
+#ffe98a,#fff8d6,#3fbf5f|☀️F 🌬️W 💡G
+#e8c1ff,#fff0f8,#7a3a5a|🔨F 💼W 🪙R
+#ffd0a0,#fff4e6,#555555|💡U 🚀U 🌉G
+#ffc1dc,#fff0f7,#7a2d5a|🤝O 🌈F ❤️U
+#ffdca8,#e8f4ff,#777777|🌳G 🚲W 🚌W
+#e8d8b0,#f6fff0,#5a8a3a|♻️O 🛍️F 🌱G
+#c8e8c8,#fff5d6,#3f7e44|🌳G ☁️W 🌡️U
+#6fc8ff,#d8f6ff,#1b6fa8|🐠W 🐢W 🗑️R
+#bff0a0,#f2ffe0,#3a8a2a|🌲G 🦋F 🦌W
+#bfe0ff,#fffbe6,#3a6a8a|🕊️F ⚖️G 🤝O
+#b8c8ff,#fff2fb,#2a3a7a|🌍O 🤲U ⭐F`.split('\n');
+const BQ=`Poverty means having...|Very little money|Too much candy|A big house
+Which helps families earn money?|Good jobs|Closed shops|Fewer schools
+Hunger means...|Not enough food|Too much sleep|Loud noise
+Wasting food...|Makes hunger worse|Helps farmers|Is good for all
+Vaccines help us...|Stay healthy|Run faster|Fly
+Which is a healthy habit?|Drinking water|Skipping meals|Staying up all night
+A good school gives...|Chances to learn|Free candy only|No lessons
+Libraries help us...|Read and learn|Sleep|Race
+Equality means...|Fair for all|Only for some|Rules for boys only
+Everyone should be allowed to...|Vote and learn|Be left out|Stay silent
+Clean water helps most with...|Drinking and washing|Making smoke|Burning fuel
+Which pollutes water?|Dumping trash|Planting trees|Filters
+Solar panels use...|Sunlight|Coal|Gas
+Which is better for air?|Wind turbines|Smoky generators|Burning tires
+Child labour is...|Not allowed|A great idea|Fun for kids
+A fair job gives...|Safe conditions|Danger|No breaks
+A strong bridge helps...|People travel|Nobody|Only birds
+Fast internet helps us...|Learn and connect|Lose sleep|Grow plants
+Inequality means...|Unfair gaps|Equal shares|Teamwork
+Helping those with less is...|Kind|Silly|Wrong
+Which makes cities cleaner?|Electric buses|More smoke|Open trash
+Safe cities need...|Good housing and parks|Dirty streets|No roads
+Before you throw something, you can...|Reuse it|Break it|Hide it
+Food scraps can become...|Compost|Plastic|Smoke
+Which gas warms our planet?|Carbon dioxide|Oxygen|Water drops
+A way to fight climate change?|Use less energy|Burn more coal|Cut all trees
+Coral reefs are home to...|Many fish|Cows|Lions
+To protect oceans we...|Skip plastic|Throw trash|Dump oil
+Cutting too many trees...|Harms animals|Helps animals|Makes oxygen
+A good way to help forests?|Plant trees|Start fires|Litter
+A fair court helps...|Everyone get justice|Only the rich|Nobody
+Bullying is...|Wrong|Cool|Allowed
+Goal 17 is about...|Working together|Winning alone|Hiding
+Sharing ideas helps countries...|Solve problems faster|Fight more|Stop learning`.split('\n');
+const BQA=BQ.map(l=>l.split('|'));let vf;
+function openQuest(i){if(i<0)return bossFight();mode='ui';const d=D[i];show(d[2]);const ok=l=>sv.lv[i+'-'+l];
+ card.innerHTML=`<div id="big" style="font-size:60px">${d[1]}</div><h2>SDG ${i+1}: ${d[0]}</h2>`+[0,1,2].map(l=>{const lk=l>0&&!ok(l-1);return `<button class="opt" ${lk?'disabled style="opacity:.5"':''} data-l="${l}">Level ${i*3+l+1} ${ok(l)?'✅':lk?'🔒':'▶'} <small>(+${[10,20,40][l]} pts)</small></button>`}).join('')+`<button class="opt" id="bs" ${ok(2)?'':'disabled style="opacity:.5"'}>⚔️ Boss Quiz ${ok('b1')?'✅':ok(2)?'':'🔒'} <small>(+30 per question)</small></button><button class="go" id="bk">Back to Lobby</button>`;
+ card.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>play(i,+b.dataset.l));$('bs').onclick=()=>boss(i);$('bk').onclick=close}
+function boss(i,n){n=n||0;if(n>1)return openQuest(i);const d=D[i],q=sv.cfg.adv?AQ[(i*7+n*13+5)%51]:BQA[i*2+n],m=(SK[sv.eq][3]*(sv.cfg.adv?1.5:1)),o=[1,2,3].map(k=>[q[k],k===1]).sort(()=>Math.random()-.5);
+ card.innerHTML=`<div id="big" style="font-size:60px">⚔️</div><h3>Boss Quiz ${n+1}/2 • ${d[0]}</h3><h2>${q[0]}</h2>`+o.map((x,j)=>`<button class="opt" data-j="${j}">${x[0]}</button>`).join('')+'<div id="m"></div>';
+ card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(!o[+b.dataset.j][1]){b.classList.add('bad');snd('bad');$('m').textContent='Oops! Try again 💪';return}
+  card.querySelectorAll('.opt').forEach(x=>x.disabled=true);b.classList.add('ok');snd('ok');const k=i+'-b'+n,pts=Math.round(30*m*(sv.lv[k]?.5:1));sv.lv[k]=1;sv.pts+=pts;hud();save();$('m').innerHTML=`<h2>+${pts} points! 🎉</h2>`;setTimeout(()=>boss(i,n+1),1000)})}
+function play(i,l){const d=D[i],T=20,sc=SC[i].split('|'),cs=sc[0].split(','),ph=sc[1].split(' ');
+ card.innerHTML=`<div style="font-size:15px">Level ${i*3+l+1} • ${d[0]} • <b>${['What is happening','How we fix it, the right way','How it helps the planet'][l]}</b></div><canvas id="cv" width="520" height="230" style="width:100%;border-radius:16px;margin:6px 0;touch-action:manipulation"></canvas><div id="cap"></div><div style="font-size:14px">👆 Tap the emojis for bonus points: <b id="pc">0</b>/10</div><div id="bar" style="margin-top:10px"><i id="bi"></i></div>`;
+ const cv=$('cv'),x=cv.getContext('2d'),W=520,H=230,t0=performance.now();let pc=0,last=-1,pop={},acts=[];
+ cv.onpointerdown=e=>{const r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)*W/r.width,my=(e.clientY-r.top)*H/r.height;for(const a of acts)if(!pop[a.k]&&a.s>10&&Math.hypot(a.x-mx,a.y-my)<32){pop[a.k]=1;if(pc<10){pc++;$('pc').textContent=pc}break}};
+ cancelAnimationFrame(vf);
+ const fr=()=>{const el=(performance.now()-t0)/1000,f=l,t=el,e=ph[f],b=e.slice(-1),em=e.slice(0,-1);
+  $('bi').style.width=Math.min(100,el/T*100)+'%';
+  const kk=f*2+(el>=10?1:0);if(kk!==last){if(kk>>1!==last>>1)pop={};last=kk;const c=$('cap');c.textContent=(LES[i][f]||[])[kk&1]||d[3+f];c.style.animation='none';void c.offsetWidth;c.style.animation=''}
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,cs[0]);g.addColorStop(1,cs[1]);x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.fillStyle='#fff9';x.beginPath();x.arc(450,45+Math.sin(el)*4,28,0,7);x.fill();x.fillStyle=cs[2];x.fillRect(0,H*.8,W,H*.2);x.fillStyle='rgba(8,12,28,.5)';x.fillRect(0,0,W,H);
+  x.textAlign='center';x.textBaseline='middle';x.globalAlpha=.18;x.font='130px serif';x.fillText(d[1],W/2,H/2);x.globalAlpha=1;
+  acts=[];for(let k=0;k<9;k++){let X,Y,S=36;
+   if(b==='R'){X=(k*61+20)%W;Y=((t*70+k*53)%(H+40))-20}
+   else if(b==='U'){X=(k*61+30)%W;Y=H+20-((t*55+k*47)%(H+40))}
+   else if(b==='W'){X=((t*45*(1+k%3*.3)+k*70)%(W+80))-40;Y=H*.72-(k%3)*14}
+   else if(b==='G'){X=k*55+40;Y=H*.72;S=48*Math.min(1,Math.max(0,(t-k*.4)*1.2))}
+   else if(b==='O'){const a=t*1.1+k*.7,r=45+k*11;X=W/2+Math.cos(a)*r*1.4;Y=H/2+Math.sin(a)*r*.6}
+   else{X=W*(.08+((k*.37)%1)*.84)+Math.sin(t+k)*28;Y=H*.35+Math.sin(t*1.3+k)*H*.18+k%3*18}
+   acts.push({k,x:X,y:Y,s:S})}
+  acts.forEach(a=>{if(pop[a.k]||a.s<2)return;x.font=a.s+'px serif';x.fillText(em,a.x,a.y)});
+  if(el>=T){card.innerHTML=`<div id="big">${d[1]}</div><h2>Nice watching! 🎉</h2><button class="go" id="q">Start Quiz ➜</button>`;$('q').onclick=()=>quiz(i,l,pc);return}
+  vf=requestAnimationFrame(fr)};vf=requestAnimationFrame(fr)}
+function quiz(i,l,pc){const d=D[i],A=sv.cfg.adv,q=A?AQ[i*3+l]:l?EX[i*2+l-1]:[d[6],d[7],d[8],d[9]],ci=A||l?0:+d[10];
+ const o=[1,2,3].map((k,j)=>[q[k],j===ci]).sort(()=>Math.random()-.5);
+ card.innerHTML=`<div id="big" style="font-size:60px">${d[1]}</div><h2>${q[0]}</h2>`+o.map((x,j)=>`<button class="opt" data-j="${j}">${x[0]}</button>`).join('')+'<div id="m"></div>';
+ card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(!o[+b.dataset.j][1]){b.classList.add('bad');snd('bad');$('m').textContent='Oops! Try another answer 💪';return}
+  card.querySelectorAll('.opt').forEach(x=>x.disabled=true);b.classList.add('ok');snd('ok');clearInterval(tm);const k=i+'-'+l,rep=sv.lv[k],m=(SK[sv.eq][3]*(sv.cfg.adv?1.5:1));
+  let pts=Math.round(([10,20,40][l]+pc)*m*(rep?.5:1)*(sv.cfg.adv&&tl>7?1.25:1)),extra='';sv.lv[k]=1;
+  if(!rep&&[0,1,2].every(x=>sv.lv[i+'-'+x])){const bn=Math.round(50*m);pts+=bn;extra=`<p>🏆 SDG ${i+1} MASTER! Bonus chest: +${bn}</p><p>🔆 <b>Beacon ${i+1} relit!</b> ${STORY[i]}</p><p>🔑 <b>${i<16?'Key earned! The gate to SDG '+(i+2)+' is open.':'The Chairmans Key! His shining door is open.'}</b></p>`;if(i===16)setTimeout(showKeyCut,900)}
+  sv.pts+=pts;hud();save();setTimeout(()=>{card.innerHTML=`<div id="big">🎁</div><h2>Correct! +${pts} points!</h2><p>x${m} from your ${SK[sv.eq][0]} skin${rep?' (replay = half points)':''}</p>${extra}`+(l<2?`<button class="go" id="nx">Next Level ➜</button>`:'')+'<button class="opt" id="sh">🛍️ Open Shop</button><button class="opt" id="bk">Back to Lobby</button>';conf();
+   if($('nx'))$('nx').onclick=()=>play(i,l+1);$('sh').onclick=shop;$('bk').onclick=close},700)});tmr(()=>{toast('⏱ Time up! New try');quiz(i,l,pc)})}
+function shop(){mode='ui';show('#2b2f77');const fl={a:'✨Aura',c:'👑Crown',w:'🪽Wings',r:'🌈Rainbow',k:'🧢Cap',h:'😇Halo',e:'😈Horns',p:'🦸Cape',t:'💫Sparkles',T:'⚡Hammer & Beard',V:'🛡️Armour',R:'🗡️Katana',N:'🥷Shinobi',O:'👁️Allfather'};
+ card.innerHTML=`<h2>🛍️ Skin Shop • 💰 ${sv.inf?'∞':sv.pts}</h2><p style="font-size:13px">Pricier skins = more points per level + faster running!</p><div style="max-height:52vh;overflow:auto">`+SK.map((s,k)=>{const ow=sv.own.includes(k),eq=sv.eq===k;return `<div style="display:flex;align-items:center;gap:10px;background:#fff2;border-radius:14px;padding:8px;margin:6px 0;text-align:left"><i style="width:34px;height:34px;border-radius:50%;background:#${s[2].toString(16).padStart(6,'0')};border:3px solid #fff"></i><div style="flex:1"><b>${s[0]}</b><br><small>x${s[3]} points • speed ${Math.round(8+(s[4]-9)*.22)} ${[...s[5]].map(c=>fl[c]).join(' ')}</small></div><button class="opt" style="width:auto;margin:0;padding:8px 12px;font-size:14px" data-k="${k}" ${eq?'disabled':''}>${eq?'Equipped':ow?'Equip':'💰 '+s[1]}</button></div>`}).join('')+'</div><button class="go" id="bk">Close</button>';
+ card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(!sv.own.includes(k)){if(!sv.inf&&sv.pts<SK[k][1]){b.textContent='Need more points!';return}if(!sv.inf)sv.pts-=SK[k][1];sv.own.push(k)}sv.eq=k;applySkin();hud();save();shop()});$('bk').onclick=close}
+
+// ---- PARKOUR + BOSS
+let vy=0,gr=true,boostT=0,cp={x:0,y:0,z:6};const PF=[{x:0,z:0,r:28,y:0,cp:1,sp:[0,0,6]}],HU=[];
+const toast=m=>{let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;top:22%;left:50%;transform:translateX(-50%);background:#000b;color:#fff;padding:10px 18px;border-radius:20px;font-weight:bold;display:none';document.body.appendChild(t)}t.textContent=m;t.style.display='block';clearTimeout(t.h);t.h=setTimeout(()=>t.style.display='none',1400)};
+function respawn(){pl.position.set(cp.x,cp.y+.2,cp.z);vy=0;toast('Oops! Back to the checkpoint 😅')}
+function physics(dt,dx,dz,mv){const p=pl.position,tt=performance.now()/1000;pl.scale.y+=((K.shift?.6:1)*.9-pl.scale.y)*Math.min(1,dt*15);camYaw+=(sv.cfg.free?1:0)*((K.arrowleft?1:0)-(K.arrowright?1:0))*2*dt;{const cy=Math.cos(camYaw),sy=Math.sin(camYaw),ex=cy*dx+sy*dz;dz=-sy*dx+cy*dz;dx=ex}
+ if(mv){const ta=Math.atan2(dx,dz);let d=Math.atan2(Math.sin(ta-pl.rotation.y),Math.cos(ta-pl.rotation.y));pl.rotation.y+=Math.sign(d)*Math.min(Math.abs(d),8*dt);tgtD=Math.abs(d)}
+ const want=mv?SP*(boostT>0?1.9:1)*(K.shift?.5:1)*Math.max(.2,Math.cos(Math.min(tgtD,1.57))):0;spd+=(want-spd)*Math.min(1,dt*7);p.x+=Math.sin(pl.rotation.y)*spd*dt;p.z+=Math.cos(pl.rotation.y)*spd*dt;
+ if(K[' ']&&gr){vy=13;gr=false;snd('jump')}
+ vy=Math.max(vy-32*dt,-25);p.y+=vy*dt;gr=false;
+ if(vy<=0)for(const q of PF)if(!q.off&&Math.hypot(p.x-q.x,p.z-q.z)<q.r&&p.y<=q.y+.1&&p.y>=q.y-1.5){p.y=q.y;LY=q.y;vy=0;gr=true;if(q.pi!=null&&!sv.vis.includes(q.pi)){sv.vis.push(q.pi);save();toast('Portal '+(q.pi+1)+' unlocked on the map ✨')}if(q.cp)cp=q.sp?{x:q.sp[0],y:q.sp[1],z:q.sp[2]}:{x:q.x,y:q.y,z:q.z};break}
+ if(p.y<-30)return respawn();for(const b of BP)if(gr&&Math.hypot(p.x-b.x,p.z-b.z)<3.2){if(boostT<=0){toast('⚡ SPEED BOOST!');snd('ok')}boostT=1.6}boostT=Math.max(0,boostT-dt);
+ for(const h of HU){if(!sv.cfg.hard)continue;const hv=h.v+(h.m?Math.sin(tt*h.sp+h.ph)*h.m:0);if(h.m)h.mesh.position.z=hv;const u=p.x*h.c+p.z*h.s,v=-p.x*h.s+p.z*h.c;
+  if(Math.abs(u-h.u)<h.d+.4&&Math.abs(v-hv)<h.w+.4&&p.y<h.y+h.h-.15&&p.y>h.y-1)return respawn()}}
+addEventListener('keydown',e=>{if(e.key===' ')e.preventDefault()});
+const jb=document.createElement('button');jb.textContent='⤴ Jump';jb.style.cssText='position:fixed;left:12px;bottom:60px;font-size:18px;padding:14px 18px;border:0;border-radius:24px;background:#fff;font-weight:bold';jb.onpointerdown=()=>K[' ']=1;jb.onpointerup=jb.onpointerleave=()=>K[' ']=0;document.body.appendChild(jb);
+const END=132,pv=u=>{const t=(u-50)/62;return t>0&&t<1?6*Math.sin(2*Math.PI*t)*Math.sin(Math.PI*t):0},WP=(()=>{const a=[];for(let u=29;u<END;u+=6)a.push([u,pv(u)]);a.push([END,0]);return a})(),CPW=[],CPG=[],CPT=(()=>{const cv=document.createElement('canvas');cv.width=256;cv.height=64;const x=cv.getContext('2d');x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,8,256,48);x.fillStyle='#ffd166';x.font='bold 30px Arial';x.textAlign='center';x.fillText('⚑ CHECKPOINT',128,44);return new THREE.CanvasTexture(cv)})(),BP=[],BM=M(0xffe14d,{emissive:0xffb300,emissiveIntensity:.9,side:2}),PADM=M(0x20242f,{emissive:0x331a00}),CHV=(()=>{const s=new THREE.Shape();s.moveTo(1,0);s.lineTo(-.4,.9);s.lineTo(-.4,.55);s.lineTo(.4,0);s.lineTo(-.4,-.55);s.lineTo(-.4,-.9);s.lineTo(1,0);return new THREE.ShapeGeometry(s)})();
+const AG=[0xff3b3b,0xff9a1f,0xffe21f,0x3fd04f,0x2f9bff,0x9b5bff].map((c,k)=>[new THREE.TorusGeometry(7-k*.5,.25,6,24,Math.PI),M(c)]),CG=new THREE.SphereGeometry(1,8,6),CM=M(0x8a96ad,{transparent:true,opacity:.3});
+P.forEach(p=>{const a=p.i/17*6.283,c=Math.cos(a),sn=Math.sin(a),col=D[p.i][2],pt=(r,o)=>[c*r-sn*o,sn*r+c*o],grp=new THREE.Group();grp.rotation.y=-a;S.add(grp);
+ Array.from({length:0},(_,n)=>[35+9*n,[1.5,-1.5,1.8,-1.2,1.6,-1.8,1.2,-1.5,1.4][n],[.6,1.2,.6,1.4,.8,1.6,1,1.8,1.2][n],n%3==2?1:0]).forEach(([r,o,y,k],j)=>{const q=pt(r,o),R=k?3.6:2.8;PF.push({x:q[0],z:q[1],r:R,y,cp:k});
+  add(new THREE.CylinderGeometry(R,R-.4,.8,14),M(k?0xffd166:[0xff8fab,0x8fd3ff,0xb5e48c][j%3]),q[0],y-.4,q[1]);if(k)add(new THREE.ConeGeometry(R-.4,2.5,12),M(0x8b5a2b),q[0],y-2,q[1]).rotation.x=Math.PI;
+  if(j==3||j==5){const sl=!k,h={c,s:sn,u:r+(sl?0:.3),v:o,w:sl?.9:3.2,d:sl?.5:.3,y,h:sl?1.5:1.3,m:sl?1.2:0,sp:1.3+(p.i%3)*.2,ph:p.i};
+   h.mesh=add(new THREE.BoxGeometry(h.d*2,h.h,h.w*2),M(sl?0xff9800:0xff4d4d),h.u,y+h.h/2,o,grp);HU.push(h)}});
+ [42,END-8].forEach(u=>{[-4.8,4.8].forEach(v=>add(new THREE.BoxGeometry(.5,5,.5),M(0x2b3042),u,2.5,v,grp));add(new THREE.BoxGeometry(.5,.4,10.2),M(col,{emissive:col,emissiveIntensity:.9}),u,5.2,0,grp)});
+ for(let n=0;n<3;n++){const u=42+n*28+(p.i%3)*2,v=(n%2?-1:1)*(9+(p.i*7+n*3)%6),y=-5-(n%3)*1.5;for(let j=0;j<3;j++)add(CG,CM,u+j*1.6-1.6,y+(j==1?.8:0),v+(j-1),grp).scale.set(2.4-j%2*.5,1.6,1.8)}
+  {const sg=p.i%2?-1:1,f=u=>pv(u)*sg,us=[];for(let u=29;u<END;u+=3)us.push(u);us.push(END);
+   const ribbon=(off,hw,y,mat)=>{const pos=[],idx=[];us.forEach((u,j)=>{const dv=f(u+.5)-f(u-.5),L=Math.hypot(1,dv),nx=-dv/L,nz=1/L,v0=f(u);[hw,-hw].forEach(w=>pos.push(u+(off+w)*nx,y,v0+(off+w)*nz));if(j<us.length-1){const k=j*2;idx.push(k,k+2,k+1,k+1,k+2,k+3)}});const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();grp.add(new THREE.Mesh(g,mat))};
+   ribbon(0,4.2,-.6,M(0x1c212c,{side:2}));ribbon(0,4,0,M(0x3b4252,{side:2}));[-3.5,3.5].forEach(o=>ribbon(o,.22,.03,M(col,{emissive:col,emissiveIntensity:.8,side:2})));ribbon(0,.1,.03,M(0xdfe6f2,{side:2}));
+   const CU=[80,108];for(let u=29;u<=END;u+=2){const v=f(u);PF.push({x:c*u-sn*v,z:sn*u+c*v,r:4.5,y:0,cp:CU.some(w=>Math.abs(u-w)<4)?1:0,rd:p.i,u:u})}
+   CU.forEach(u=>{const v=f(u),g=new THREE.Group();g.position.set(u,0,v);g.rotation.y=-Math.atan2(f(u+.5)-f(u-.5),1);grp.add(g);CPW.push({x:c*u-sn*v,z:sn*u+c*v});
+    const gm=M(0xffd166,{emissive:0xffb300,emissiveIntensity:.9});[-1,1].forEach(k=>{add(new THREE.CylinderGeometry(.25,.32,5.4,10),M(0x2b3042,{emissive:col,emissiveIntensity:.4}),0,2.7,k*4.6,g);add(new THREE.SphereGeometry(.45,12,8),gm,0,5.7,k*4.6,g)});
+    add(new THREE.BoxGeometry(.3,.3,9.2),gm,0,5.4,0,g);add(new THREE.TorusGeometry(4.3,.12,6,36),gm,0,.06,0,g).rotation.x=Math.PI/2;add(new THREE.CylinderGeometry(4.2,4.2,.04,36),M(0xffd166,{emissive:0xffb300,emissiveIntensity:.5,transparent:true,opacity:.22}),0,.05,0,g);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:CPT,transparent:true}));sp.scale.set(6,1.5,1);sp.position.set(0,6.9,0);g.add(sp);CPG.push(add(new THREE.OctahedronGeometry(.6),gm,0,3.2,0,g))});
+   [66,96].forEach(u=>{const v=f(u);BP.push({x:c*u-sn*v,z:sn*u+c*v});const g2=new THREE.Group();g2.position.set(u,.05,v);g2.rotation.y=-Math.atan2(f(u+.5)-f(u-.5),1);grp.add(g2);add(new THREE.CylinderGeometry(3.3,3.3,.1,24),PADM,0,0,0,g2);add(new THREE.TorusGeometry(3.3,.1,6,28),BM,0,.05,0,g2).rotation.x=Math.PI/2;[-1.5,0,1.5].forEach(o=>add(CHV,BM,o,.07,0,g2).rotation.x=-Math.PI/2)})}
+ const X=END*c,Z=END*sn;PF.push({x:X,z:Z,r:5,y:0,cp:1,pi:p.i});add(new THREE.CylinderGeometry(5,4.4,.6,20),M(col),X,-.3,Z);add(new THREE.ConeGeometry(4.4,4,20),M(0x8b5a2b),X,-2.2,Z).rotation.x=Math.PI;
+ p.g.position.set(X,0,Z);p.x=X;p.z=Z;p.y=0;p.sp.scale.set(5,5,1);add(new THREE.CylinderGeometry(1.2,1.2,70,12,1,true),M(col,{transparent:true,opacity:.22,side:2}),0,35,0,p.g)});
+S.fog.near=110;S.fog.far=340;C.far=520;
+// BOSS
+const ARa=4.62,ARY=45,ARR=125,BX=Math.cos(ARa)*ARR,BZ=Math.sin(ARa)*ARR,DR=21,DX=Math.cos(ARa)*DR,DZ=Math.sin(ARa)*DR,B3=new THREE.Group(),bm=(g,c,x,y,z,sc)=>{const o=add(g,M(c),x,y,z,B3);if(sc)o.scale.set(...sc);return o};
+bm(new THREE.SphereGeometry(1.5,22,16),0x3a3a4a,0,2.2,0,[1.3,1.1,1]);bm(new THREE.SphereGeometry(1,16,12),0xffffff,0,2.3,1.38,[.7,.9,.25]);bm(new THREE.BoxGeometry(.3,1.5,.1),0xd81e2b,0,2.35,1.68);bm(new THREE.BoxGeometry(.38,.3,.14),0xd81e2b,0,3.05,1.65);
+bm(new THREE.TorusGeometry(.75,.18,8,18),0xffffff,0,3.45,0).rotation.x=Math.PI/2;bm(new THREE.SphereGeometry(1,22,16),0xf2b98e,0,4.45,0,[1,.95,1]);
+bm(new THREE.SphereGeometry(1.04,22,12,0,6.283,1.65,1.4),0x6b5238,0,4.45,0);[-1,1].forEach(k=>{bm(new THREE.SphereGeometry(.35,8,8),0x777777,k*.95,4.6,-.1,[.5,1,1]);bm(new THREE.SphereGeometry(.17,10,8),0xffffff,k*.38,4.65,.88);bm(new THREE.SphereGeometry(.09,8,8),0x111111,k*.38,4.65,.99);
+ bm(new THREE.BoxGeometry(.45,.09,.1),0x3a2a1a,k*.38,4.95,.9).rotation.z=k*.4;bm(new THREE.SphereGeometry(.2,8,6),0x5a4636,k*.25,4.17,.93,[1.6,.5,.7]);
+ const ar=bm(new THREE.CylinderGeometry(.45,.4,1.8,12),0x3a3a4a,k*1.95,2.7,0);ar.rotation.z=k*.5;bm(new THREE.SphereGeometry(.4,10,8),0xf2b98e,k*2.45,1.85,.2);bm(new THREE.CylinderGeometry(.5,.45,1.4,12),0x222233,k*.7,.7,0);bm(new THREE.BoxGeometry(.8,.3,1),0x111111,k*.7,.15,.3)});
+bm(new THREE.SphereGeometry(.2,8,8),0xe89a8a,0,4.4,1);bm(new THREE.BoxGeometry(.4,.07,.05),0x331111,0,3.98,1.02);
+{const cv=document.createElement('canvas');cv.width=256;cv.height=96;const t=cv.getContext('2d');t.fillStyle='#b3001b';t.fillRect(0,0,256,96);t.fillStyle='#fff';t.font='bold 56px Arial';t.textAlign='center';t.fillText('BOSS',128,68);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));sp.scale.set(5,1.9,1);sp.position.set(0,6.6,0);B3.add(sp)}
+B3.scale.setScalar(1.6);B3.position.set(BX,ARY,BZ);S.add(B3);setInterval(()=>{const n=Date.now();B3.rotation.y=Math.sin(n/800)*.25;B3.scale.y=1.6+Math.sin(n/300)*.03},40);
+const BOSSP={i:-1};
+function bossFight(){mode='ui';show('#3a1f1f');const pool=[];D.forEach((d,i)=>{const ci=+d[10],o=[d[7],d[8],d[9]];pool.push([i,d[6],o[ci],...o.filter((_,j)=>j!==ci)])});EX.forEach((e,k)=>pool.push([k>>1,...e]));BQA.forEach((e,k)=>pool.push([k>>1,...e]));
+ if(sv.cfg.adv){pool.length=0;AQ.forEach((e,k)=>pool.push([(k/3)|0,...e]))}pool.sort(()=>Math.random()-.5);const Q=pool.slice(0,sv.cfg.adv?10:8),m=(SK[sv.eq][3]*(sv.cfg.adv?1.5:1));let n=0,lives=sv.cfg.adv?2:3,won=0;
+ const ask=()=>{if(!lives||n>=Q.length)return end();const q=Q[n],o=[2,3,4].map(k=>[q[k],k===2]).sort(()=>Math.random()-.5);
+  card.innerHTML=`<div id="big" style="font-size:60px">😤</div><div>Boss HP ${'🟥'.repeat(Q.length-won)}${'⬜'.repeat(won)} &nbsp; ${'❤️'.repeat(lives)}</div><small>Mixed question • SDG ${q[0]+1}: ${D[q[0]][0]}</small><h2>${q[1]}</h2>`+o.map((x,j)=>`<button class="opt" data-j="${j}">${x[0]}</button>`).join('')+'<div id="m"></div>';
+  card.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{clearInterval(tm);card.querySelectorAll('.opt').forEach(x=>x.disabled=true);if(o[+b.dataset.j][1]){b.classList.add('ok');snd('ok');won++;$('m').innerHTML='💥 Direct hit! "Impossible!"'}else{b.classList.add('bad');snd('bad');lives--;$('m').innerHTML='😈 "Ha ha! Wrong!" -1 ❤️'}n++;setTimeout(ask,1100)});tmr(()=>{lives--;n++;card.querySelectorAll('.opt').forEach(x=>x.disabled=true);$('m').innerHTML='⏱ Time up! -1 ❤️';setTimeout(ask,1100)})};
+ const end=()=>{const w=won>=(sv.cfg.adv?8:6)&&lives>0,pts=Math.round((won*25+(w?150:0))*m);sv.pts+=pts;hud();save();card.innerHTML=`<div id="big">${w?'🏆':'😵'}</div><h2>${w?'You defeated the Chairman!':'The Chairman escaped...'}</h2><p>${won}/8 correct • +${pts} sparks</p>${w?'<p>The Chairman drops his ledger. <i>I built this city to protect people, then I started counting only coins.</i> He gives you the master key. Every beacon blazes, the Sky Hub rises, and the former Chairman becomes its Keeper, vowing to light them for everyone.</p>':'<p>The Chairman slips back into his tower. <i>Come back when you have learned more, Runner.</i> Relight more beacons and try again.</p>'}<button class="go" id="bk">Back to Lobby</button>`;if(w){conf();snd('win')}$('bk').onclick=close};ask()}
+const mkB=(t,css,fn)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='position:fixed;font-size:16px;padding:10px 14px;border:0;border-radius:20px;background:#fff;font-weight:bold;'+css;fn(b);document.body.appendChild(b)};
+const toStart=()=>{if(mode!=='play')return;cp={x:0,y:0,z:6};respawn();toast('Back at the start! 🏁')};
+mkB('🔄 Reset','right:12px;top:calc(60px + env(safe-area-inset-top,0px))',b=>b.onclick=toStart);
+mkB('⬇ Crouch','left:12px;bottom:110px',b=>{b.onpointerdown=()=>K.shift=1;b.onpointerup=b.onpointerleave=()=>K.shift=0});
+addEventListener('keydown',e=>{if(e.key.toLowerCase()==='r')toStart()});addEventListener('blur',()=>{for(const k in K)K[k]=0});
+let camYaw=0,dg=null;R.domElement.onpointerdown=e=>dg=e.clientX;addEventListener('pointerup',()=>dg=null);R.domElement.onpointermove=e=>{if(dg!=null&&mode==='play'&&sv.cfg.free){camYaw-=(e.clientX-dg)*.006;dg=e.clientX}};
+function drawMap(c,N,full){const x=c.getContext('2d'),R=full?150:62,k=N/2/R,cx=full?0:pl.position.x,cz=full?0:pl.position.z,X=v=>N/2+(v-cx)*k,Y=v=>N/2+(v-cz)*k;
+ x.clearRect(0,0,N,N);x.save();if(!full){x.beginPath();x.arc(N/2,N/2,N/2-1,0,7);x.clip()}
+ const bg=x.createRadialGradient(N/2,N/2,0,N/2,N/2,N/2);bg.addColorStop(0,'#21406b');bg.addColorStop(1,'#0a1530');x.fillStyle=bg;x.fillRect(0,0,N,N);
+ x.strokeStyle='rgba(255,255,255,.09)';x.lineWidth=1;[50,100,150].forEach(r=>{x.beginPath();x.arc(X(0),Y(0),r*k,0,7);x.stroke()});
+ const ig=x.createRadialGradient(X(0),Y(0),0,X(0),Y(0),28*k);ig.addColorStop(0,'#58a87c');ig.addColorStop(1,'#2f6a4e');x.fillStyle=ig;x.beginPath();x.arc(X(0),Y(0),28*k,0,7);x.fill();x.strokeStyle='#a6f5c9';x.lineWidth=full?3:2;x.stroke();
+ x.fillStyle='#6b7690';x.beginPath();x.arc(X(0),Y(0),8*k,0,7);x.fill();x.fillStyle='#1fb6a0';x.beginPath();x.arc(X(0),Y(0),Math.max(2,2.6*k),0,7);x.fill();
+ x.strokeStyle='#e7c46a';x.lineWidth=Math.max(3,8*k);x.beginPath();x.moveTo(X(DX),Y(DZ));x.lineTo(X(BX),Y(BZ));x.stroke();x.fillStyle='#e7c46a';x.beginPath();x.arc(X(BX),Y(BZ),17*k,0,7);x.fill();
+ x.lineCap='round';x.lineJoin='round';
+ P.forEach(p=>{const a=p.i/17*6.283,c2=Math.cos(a),s2=Math.sin(a),sg=p.i%2?-1:1,pt=WP.map(w=>[X(c2*w[0]-s2*w[1]*sg),Y(s2*w[0]+c2*w[1]*sg)]);
+  [['rgba(0,0,0,.55)',8*k],[D[p.i][2],4.6*k]].forEach(([col,lw])=>{x.strokeStyle=col;x.lineWidth=Math.max(2,lw);x.beginPath();pt.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.stroke()})});
+ CPW.forEach(q=>{x.strokeStyle='#ffd166';x.lineWidth=full?3:2;x.beginPath();x.arc(X(q.x),Y(q.z),Math.max(3,3.6*k),0,7);x.stroke()});
+ BP.forEach(b=>{x.fillStyle='rgba(255,225,77,.35)';x.beginPath();x.arc(X(b.x),Y(b.z),Math.max(4,5*k),0,7);x.fill();x.fillStyle='#ffe14d';x.strokeStyle='#5a3b00';x.lineWidth=1.5;x.beginPath();x.arc(X(b.x),Y(b.z),Math.max(2.2,2.4*k),0,7);x.fill();x.stroke()});
+ if(GOK)GATES.forEach(g=>{if(!g.open){x.fillStyle='#ff5a5a';x.beginPath();x.arc(X(g.x),Y(g.z),Math.max(3,3.4*k),0,7);x.fill()}});if(GOK&&DOOR&&!DOOR.open){x.fillStyle='#ff5a5a';x.beginPath();x.arc(X(DX),Y(DZ),Math.max(3,3.4*k),0,7);x.fill()}
+ P.forEach(p=>{const d=[0,1,2].every(l=>sv.lv[p.i+'-'+l]),v=sv.vis.includes(p.i),r=full?14:Math.max(5,4.4*k);x.fillStyle=D[p.i][2];x.beginPath();x.arc(X(p.x),Y(p.z),r,0,7);x.fill();x.lineWidth=full?3.5:2;x.strokeStyle=d?'#ffe066':v?'#fff':'#6d7690';x.stroke();
+  if(full){x.fillStyle='#fff';x.font='bold 14px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(p.i+1,X(p.x),Y(p.z)+1)}});
+ x.font=(full?22:12)+'px serif';x.textAlign='center';x.textBaseline='middle';x.fillText('😤',X(BX),Y(BZ));x.fillText('🏠',X(0),Y(6));
+ x.save();x.translate(X(pl.position.x),Y(pl.position.z));x.rotate(Math.PI-pl.rotation.y);const z=full?10:7;x.shadowColor='#ff3b3b';x.shadowBlur=full?10:6;x.fillStyle='#fff';x.strokeStyle='#e00';x.lineWidth=2;x.beginPath();x.moveTo(0,-z);x.lineTo(z*.7,z*.7);x.lineTo(0,z*.3);x.lineTo(-z*.7,z*.7);x.closePath();x.fill();x.stroke();x.restore();
+ x.restore();x.fillStyle='#fff';x.font='bold '+(full?15:9)+'px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText('N',N/2,full?14:8);
+ if(!full){x.strokeStyle='rgba(255,255,255,.75)';x.lineWidth=2;x.beginPath();x.arc(N/2,N/2,N/2-1,0,7);x.stroke()}}
+function openMap(){mode='ui';show('#0d2b4d');card.innerHTML='<h3>🗺️ World Map</h3><canvas id="mc" width="520" height="520" style="width:100%;border-radius:14px"></canvas><div style="font-size:13px;margin:6px 0">⬜ stone • 🟨 checkpoint • 🟥 hurdle • 🟡 speed boost • 🔴 locked gate • 🏠 start • ⚪ portal (gold ring = done) • 😤 Boss • ▲ you<br><b>Tap Hub, Boss or an unlocked portal to fast-travel!</b></div><div id="mm" style="min-height:20px"></div><button class="go" id="bk">Close</button>';
+ drawMap($('mc'),520,1);$('bk').onclick=close;
+ $('mc').onclick=e=>{const r=e.target.getBoundingClientRect(),wx=((e.clientX-r.left)/r.width-.5)*300,wz=((e.clientY-r.top)/r.height-.5)*300;let best=null,bd=20;
+  [{x:0,z:6,y:0,n:'the Hub',ok:1,px:0,pz:0},{x:DX-Math.cos(ARa)*4,z:DZ-Math.sin(ARa)*4,y:0,n:'the Boss',ok:1,px:BX,pz:BZ},...P.map(p=>{const a=p.i/17*6.283;return{x:p.x-Math.cos(a)*2.5,z:p.z-Math.sin(a)*2.5,y:1,n:'Portal '+(p.i+1),ok:sv.vis.includes(p.i),px:p.x,pz:p.z}})].forEach(t=>{const d=Math.hypot(t.px-wx,t.pz-wz);if(d<bd){bd=d;best=t}});
+  if(!best)return;if(!best.ok){$('mm').textContent='🔒 Reach '+best.n+' by parkour once to unlock fast travel!';return}
+  pl.position.set(best.x,best.y+.2,best.z);vy=0;cp=best.y?{x:best.px,y:1,z:best.pz}:{x:0,y:0,z:6};close();toast('Zoom! 🚀 '+best.n)}}
+function applyCfg(){HU.forEach(h=>h.mesh.visible=!!sv.cfg.hard);if(!sv.cfg.free)camYaw=0}
+function settings(){mode='ui';show('#244a2a');const c=sv.cfg;card.innerHTML=`<h2>⚙️ Settings</h2><button class="opt" id="s3">Mode: ${c.adv?'🎓 Advanced (young adults)':'🎒 Junior Explorer'}</button><button class="opt" id="s2">Camera: ${c.free?'Free (drag or ←/→ to turn)':'Classic (fixed, W = up the screen)'}</button><button class="opt" id="s4">🎁 Redeem gift code</button><button class="go" id="bk">Done</button>`;
+ $('s4').onclick=redeem;$('s3').onclick=()=>{c.adv=c.adv?0:1;setTheme();save();settings()};$('s2').onclick=()=>{c.free=c.free?0:1;applyCfg();save();settings()};$('bk').onclick=close}
+mkB('🗺️ Map','right:12px;top:calc(104px + env(safe-area-inset-top,0px))',b=>b.onclick=()=>mode==='play'&&openMap());
+mkB('⚙️ Settings','right:12px;top:calc(148px + env(safe-area-inset-top,0px))',b=>b.onclick=()=>mode==='play'&&settings());
+addEventListener('keydown',e=>{if(e.key.toLowerCase()==='m'&&mode==='play')openMap()});
+const mini=document.createElement('canvas');mini.width=mini.height=150;mini.style.cssText='position:fixed;left:10px;top:calc(58px + env(safe-area-inset-top,0px));width:150px;height:150px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px #0006;cursor:pointer';mini.onclick=()=>mode==='play'&&openMap();document.body.appendChild(mini);
+setInterval(()=>{if(mode==='play')drawMap(mini,150,0)},200);const AQ=`Target 1.1 aims to end extreme poverty by what year?|2030|2050|2100
+Multidimensional poverty looks at income plus...|Health, education and living standards|Only GDP|Only population size
+Cash transfers mainly reduce poverty by...|Supporting household spending and access to services|Cooling the planet|Raising fuel prices
+SDG 2 also targets...|Sustainable agriculture and nutrition|Space exploration|Banking reform
+Roughly what share of food produced is lost or wasted?|About one third|Under 1%|About 90%
+Stunting in children is mainly caused by...|Chronic undernutrition|Too much sleep|Lack of homework
+Universal Health Coverage means...|Health services without financial hardship|A free gym for all|Emergency care only
+Noncommunicable diseases cause what share of deaths worldwide?|Over 70%|About 10%|Under 1%
+Herd immunity from vaccines protects...|People who cannot be vaccinated|Only the vaccinated|Only adults
+SDG 4 promotes quality education and...|Lifelong learning opportunities|Only university degrees|Private tutoring only
+Foundational literacy means...|Reading with understanding by about age 10|Writing novels|Memorising dates
+Which is a major barrier to schooling worldwide?|Conflict and poverty|Too many holidays|Excess funding
+Unpaid care work is mostly done by...|Women and girls|Men|Robots
+Gender parity in politics means...|Balanced representation of women and men|Only women leaders|No elections
+Gender equality is...|A foundation for sustainable development|Only a cultural issue|Irrelevant to the economy
+Water stress occurs when...|Demand exceeds available supply|Rain falls too often|Rivers freeze
+Sanitation includes...|Safe toilets and hygiene|Only bottled water|Water parks
+Which sector uses the most freshwater globally?|Agriculture|Households|Tourism
+SDG 7 energy should be affordable, reliable, sustainable and...|Modern|Imported|Nuclear-only
+Energy efficiency means...|The same output with less energy|More energy for the same output|Free electricity
+Which is a renewable source?|Geothermal|Natural gas|Coal
+Decent work includes...|Fair income, security and rights|Any job at any pay|Unpaid overtime
+Informal employment means...|Work without formal protections|Government jobs|Remote work
+Growth in SDG 8 should be...|Inclusive and sustainable|At any cost|For a few only
+Resilient infrastructure helps societies...|Withstand shocks like floods|Avoid all trade|Close schools
+The digital divide is...|Unequal access to technology|A broken screen|Splitting data
+Research and development spending supports...|Innovation|Inflation only|Deforestation
+Inequality is often measured by the...|Gini coefficient|Kelvin scale|Richter scale
+Progressive taxation means...|Higher earners pay a higher rate|Everyone pays the same amount|No taxes
+Leave no one behind means...|Reaching the furthest behind first|Helping the richest|Ignoring migrants
+More than half of humanity lives in...|Cities|Deserts|Forests
+A slum is mainly marked by...|Inadequate housing and services|Large parks|Skyscrapers
+Sustainable urban mobility favours...|Walking, cycling and public transport|Private cars only|Helicopters
+A circular economy aims to...|Keep materials in use and cut waste|Burn waste faster|Make products disposable
+Greenwashing is...|Misleading claims of being eco-friendly|Washing clothes with plants|Painting walls green
+Planned obsolescence encourages...|Frequent replacement of products|Repair|Sharing
+The Paris Agreement aims to hold warming well below...|2°C|10°C|5°C
+Climate mitigation means...|Reducing emissions|Adjusting to impacts|Ignoring data
+Which gas is the biggest driver of recent warming?|Carbon dioxide|Helium|Argon
+Ocean acidification is caused by...|The ocean absorbing CO2|Too much salt|Whales
+Overfishing means...|Catching fish faster than they reproduce|Using big boats|Farming fish
+Marine protected areas...|Limit harmful activity so ecosystems recover|Ban all swimming|Allow oil drilling
+Biodiversity means...|The variety of life on Earth|A type of forest|A biology textbook
+Desertification is...|Land degradation in dry areas|Building deserts for tourism|Rain in deserts
+Deforestation is a major cause of...|Habitat loss and carbon release|More snow|Cleaner air only
+SDG 16 includes access to...|Justice for all|Faster cars|Free music
+Strong institutions should be...|Effective, accountable and transparent|Secretive|Unaccountable
+Corruption harms development by...|Diverting resources from public needs|Boosting schools|Lowering taxes fairly
+Goal 17 strengthens...|Means of implementation and global partnership|Space travel|Fashion trade
+ODA stands for...|Official Development Assistance|Overseas Debt Agreement|Open Data Archive
+South-South cooperation means...|Developing countries sharing knowledge and resources|Antarctic exploring|A southern trade ban`.split('\n').map(l=>l.split('|'));
+let tl=99;function tmr(end){clearInterval(tm);if(!sv.cfg.adv){tl=99;return}const b=document.createElement('div');b.style.cssText='height:8px;background:#ffd400;border-radius:4px;margin-bottom:8px;transition:width .25s linear';card.prepend(b);tl=15;tm=setInterval(()=>{tl-=.25;b.style.width=tl/15*100+'%';if(tl<=0){clearInterval(tm);end()}},250)}
+const stars=new THREE.Points((()=>{const g=new THREE.BufferGeometry(),a=[];for(let k=0;k<500;k++){const u=Math.random()*6.283,v=Math.random()*1.4+.1,r=230;a.push(Math.cos(u)*Math.sin(v)*r,Math.cos(v)*r*.8,Math.sin(u)*Math.sin(v)*r)}g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));return g})(),new THREE.PointsMaterial({color:0xffffff,size:1.6,fog:false}));S.add(stars);
+function setTheme(){const a=!!sv.cfg.adv,c=a?0x0d1226:0x24385c;S.background.set(c);S.fog.color.set(c);S.children[0].intensity=a?.6:.9;sun.intensity=a?.55:.8;sun.color.set(a?0xff9a5a:0xbcd4ff);stars.visible=true;document.body.style.background=a?'#0d1226':'#24385c'}
+function chooser(){mode='ui';show('#1b2a49');card.innerHTML='<h1 style="margin:4px 0;letter-spacing:.14em">IMPACT X</h1><p style="opacity:.8;margin:0 0 10px">Learn the 17 Global Goals. Run. Explore. Win.</p><button class="opt" id="m1">🎒 Junior Explorer<br><small>Friendly questions • bright sky • no timer</small></button><button class="opt" id="m2">🎓 Advanced Challenger<br><small>Teens &amp; young adults • real-world facts • 15s timer + speed bonus • +50% points • tougher Boss • dusk sky</small></button><small>You can switch any time in ⚙️ Settings.</small>';
+ $('m1').onclick=()=>{sv.cfg.adv=0;sv.cfg.set=1;setTheme();close()};$('m2').onclick=()=>{sv.cfg.adv=1;sv.cfg.set=1;setTheme();close()}}
+setTheme();
+let JX=0,JZ=0,LY=0,camH=9,tgtD=0,spd=0;
+R.domElement.addEventListener('click',()=>{if(mode==='play'&&!document.pointerLockElement)try{R.domElement.requestPointerLock()}catch(e){}});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement===R.domElement&&mode==='play'){if(sv.cfg.free)camYaw-=e.movementX*.0035;camH=Math.min(18,Math.max(4,camH+e.movementY*.03))}});
+document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockElement&&mode==='play')toast('Cursor released • click the game to lock it again')});
+addEventListener('keydown',e=>{if(mode!=='play')return;const k=e.key.toLowerCase();if(k==='b')shop();if(k==='p')settings()});
+const blob=add(new THREE.CircleGeometry(.9,16),M(0x000000,{transparent:true,opacity:.35}),0,.04,0);blob.rotation.x=-Math.PI/2;
+R.domElement.style.touchAction='none';
+const jy=document.createElement('div');jy.id='joy';jy.innerHTML='<i></i>';document.body.appendChild(jy);const kn=jy.firstChild;
+const jm=e=>{const r=jy.getBoundingClientRect(),R2=r.width/2;let x=e.clientX-r.left-R2,y=e.clientY-r.top-R2;const m=Math.hypot(x,y);if(m>R2){x*=R2/m;y*=R2/m}kn.style.transform=`translate(${x}px,${y}px)`;JX=m<12?0:x/R2;JZ=m<12?0:y/R2};
+jy.onpointerdown=e=>{jy.setPointerCapture(e.pointerId);jm(e)};jy.onpointermove=e=>{if(jy.hasPointerCapture(e.pointerId))jm(e)};jy.onpointerup=jy.onpointercancel=()=>{JX=JZ=0;kn.style.transform=''};
+const rot=document.createElement('div');rot.id='rot';rot.textContent='📱 Rotate your phone to landscape for the best experience';document.body.appendChild(rot);
+const tb=document.createElement('div');tb.id='tb';document.body.appendChild(tb);
+[['Map','🗺️'],['Shop','🛍️'],['Settings','⚙️'],['Reset','🔄']].forEach(([n,ic])=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes(n)&&x.id!=='enter');if(b){tb.appendChild(b);b.style.cssText='';b.className='gb';b.textContent=ic;b.title=n}});
+const fs=document.createElement('button');fs.className='gb';fs.textContent='⛶';fs.title='Fullscreen';fs.onclick=()=>{try{document.documentElement.requestFullscreen().then(()=>screen.orientation.lock('landscape')).catch(()=>{})}catch(e){}};tb.appendChild(fs);
+[...document.querySelectorAll('button')].forEach(b=>{if(b.textContent.includes('Jump')){b.id='jb';b.style.cssText='';b.className='gb';b.textContent='JUMP'}if(b.textContent.includes('Crouch')){b.id='cb';b.style.cssText='';b.className='gb';b.textContent='CROUCH'}});
+document.querySelectorAll('canvas')[1].id='mini';
+P.forEach(p=>{const a=p.i/17*6.283,col=D[p.i][2];[-1,1].forEach(k=>{add(new THREE.BoxGeometry(.7,5,.7),M(0x2b3042),2.8*k,2.5,0,p.g);add(new THREE.SphereGeometry(.4,10,8),M(col,{emissive:col,emissiveIntensity:.9}),2.8*k,5.2,0,p.g)});
+ const g=new THREE.Group();g.rotation.y=-a;S.add(g);const sg=p.i%2?-1:1;WP.slice(0,-1).forEach((w,q)=>{if(q%3)return;const u0=w[0],v0=w[1]*sg,u1=WP[q+1][0],v1=WP[q+1][1]*sg,len=Math.hypot(u1-u0,v1-v0),nx=-(v1-v0)/len,nz=(u1-u0)/len;[-1,1].forEach(k=>{const u=(u0+u1)/2+nx*5.4*k,v=(v0+v1)/2+nz*5.4*k;add(new THREE.CylinderGeometry(.08,.1,2.4,6),M(0x2b3042),u,1.2,v,g);add(new THREE.SphereGeometry(.28,8,6),M(0xfff0b0,{emissive:0xffd070,emissiveIntensity:1}),u,2.55,v,g)})})});
+clouds.forEach(c=>c.visible=false);CM.visible=false;S.fog.near=240;S.fog.far=760;C.far=1000;
+{const c=document.createElement('canvas');c.width=4;c.height=256;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,256);[[0,'#04071a'],[.35,'#0e1a42'],[.47,'#3b2f66'],[.5,'#8a5a7a'],[.53,'#1a1d3a'],[1,'#080b1c']].forEach(a=>g.addColorStop(a[0],a[1]));x.fillStyle=g;x.fillRect(0,0,4,256);
+ S.add(new THREE.Mesh(new THREE.SphereGeometry(650,24,16),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),side:THREE.BackSide,fog:false})));
+ const m=new THREE.Mesh(new THREE.SphereGeometry(28,24,16),new THREE.MeshBasicMaterial({color:0xf3efe2,fog:false}));m.position.set(-210,150,-480);S.add(m);
+ const r=document.createElement('canvas');r.width=r.height=128;const y=r.getContext('2d'),h=y.createRadialGradient(64,64,10,64,64,64);h.addColorStop(0,'rgba(255,250,235,.9)');h.addColorStop(1,'rgba(255,250,235,0)');y.fillStyle=h;y.fillRect(0,0,128,128);
+ const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(r),fog:false,depthWrite:false}));gl.scale.set(220,220,1);gl.position.copy(m.position);S.add(gl)}
+add(new THREE.TorusGeometry(27.5,.25,8,96),M(0x00e5ff,{emissive:0x00e5ff,emissiveIntensity:.8}),0,.1,0).rotation.x=Math.PI/2;
+[-1,1].forEach(k=>{E(SP1,WH,k*.2,.08,.51,.085,.065,.045,HG);E(SP1,M(0x4a3020),k*.2,.08,.54,.055,.055,.03,HG);E(SP1,DK,k*.2,.08,.56,.03,.03,.02,HG);E(SP1,WH,k*.2+.015,.095,.575,.012,.012,.01,HG);add(new THREE.BoxGeometry(.22,.035,.05),HM,k*.2,.24,.5,HG).rotation.z=-k*.05});
+add(new THREE.TorusGeometry(.1,.017,6,14,Math.PI),M(0x8a4a42),0,-.19,.5,HG).rotation.z=Math.PI;
+let mute=false,ac;const AC=window.AudioContext||window.webkitAudioContext;
+function snd(t){if(mute||!AC)return;try{ac=ac||new AC();const T={jump:[[330,520,.12,'triangle']],coin:[[880,1320,.1,'sine']],ok:[[523,784,.18,'sine'],[784,1046,.2,'sine']],bad:[[220,150,.25,'sawtooth']],win:[[523,659,.15,'triangle'],[659,784,.15,'triangle'],[784,1046,.3,'triangle']]}[t];let at=ac.currentTime;T.forEach(([a,b,d,w])=>{const o=ac.createOscillator(),g=ac.createGain();o.type=w;o.frequency.setValueAtTime(a,at);o.frequency.linearRampToValueAtTime(b,at+d);g.gain.setValueAtTime(.1,at);g.gain.exponentialRampToValueAtTime(.001,at+d);o.connect(g);g.connect(ac.destination);o.start(at);o.stop(at+d);at+=d*.9})}catch(e){}}
+const mt=document.createElement('button');mt.className='gb';mt.textContent='🔊';mt.title='Sound';mt.onclick=()=>{mute=!mute;mt.textContent=mute?'🔇':'🔊'};tb.appendChild(mt);
+const sh2=document.createElement('button');sh2.className='gb';sh2.textContent='🔗';sh2.title='Share';sh2.onclick=()=>{const d={title:'Impact X',text:'Learn the 17 Global Goals in a 3D game',url:location.href};try{navigator.share?navigator.share(d):navigator.clipboard.writeText(location.href).then(()=>toast('Link copied'))}catch(e){}};tb.appendChild(sh2);
+const fire=new THREE.Points((()=>{const g=new THREE.BufferGeometry(),a=[];for(let k=0;k<160;k++){const r=8+Math.random()*60,t=Math.random()*6.283;a.push(Math.cos(t)*r,1+Math.random()*11,Math.sin(t)*r)}g.setAttribute('position',new THREE.Float32BufferAttribute(a,3));return g})(),new THREE.PointsMaterial({color:0x9fe8ff,size:.5,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));S.add(fire);
+const CG2=new THREE.OctahedronGeometry(.45),CM2=M(0xffd24a,{emissive:0xc98a00,emissiveIntensity:.8}),coins=[];
+const coin=(x,z)=>{const m=add(CG2,CM2,x,1.3,z);m.scale.y=1.4;coins.push({m,x,z})};
+for(let k=0;k<10;k++){const a=k/10*6.283;coin(Math.cos(a)*15,Math.sin(a)*15)}
+P.forEach(p=>{const a=p.i/17*6.283;[50,62,74,86,98,110].forEach(u=>coin(Math.cos(a)*u,Math.sin(a)*u))});
+setInterval(()=>{coins.forEach(c=>{if(c.m.visible)c.m.rotation.y+=.1});fire.rotation.y+=.0015;if(mode!=='play')return;const q=pl.position;coins.forEach(c=>{if(c.m.visible&&q.y<2.2&&Math.hypot(q.x-c.x,q.z-c.z)<1.7){c.m.visible=false;sv.pts+=Math.round(2*SK[sv.eq][3]);hud();snd('coin')}})},50);
+setInterval(save,5000);
+const ck=t=>b2h(hm(new TextEncoder().encode('sdgq-gift-key-v2'),new TextEncoder().encode(t))).slice(0,16);
+const inp='style="width:100%;padding:12px;border-radius:10px;border:0;font-size:16px;margin:6px 0"';
+function redeem(){mode='ui';show('#244a2a');card.innerHTML=`<h2>🎁 Redeem gift code</h2><input id="gc" ${inp}><div id="m" style="min-height:24px"></div><button class="go" id="ok">Redeem</button><button class="opt" id="bk">Close</button>`;$('bk').onclick=close;
+ $('ok').onclick=()=>{try{const t=$('gc').value.trim(),i=t.lastIndexOf('-'),a=t.slice(0,i);if(ck('sdgq'+a)!==t.slice(i+1))throw 0;const d=JSON.parse(atob(a));sv.used=sv.used||[];if(sv.used.includes(d.n)){$('m').textContent='Already used';return}sv.used.push(d.n);if(d.p)sv.pts+=d.p;if(d.s!=null&&!sv.own.includes(d.s))sv.own.push(d.s);save();hud();snd('ok');$('m').textContent='✅ Received'+(d.p?' +'+d.p+' points':'')+(d.s!=null?' • skin: '+SK[d.s][0]:'')}catch(e){$('m').textContent='Invalid code'}}}
+function gift(){card.innerHTML=`<h2>🎁 Create gift code</h2><input id="gp" type="number" placeholder="Points (e.g. 500)" ${inp}><select id="gs" ${inp}><option value="">No skin</option>${SK.map((s,k)=>`<option value="${k}">${s[0]}</option>`).join('')}</select><button class="go" id="ok">Generate</button><textarea id="out" readonly style="width:100%;height:70px;margin-top:8px;border-radius:10px;border:0;padding:8px"></textarea><button class="opt" id="bk">Back</button>`;
+ $('ok').onclick=()=>{const p=+$('gp').value||0,k=$('gs').value,a=btoa(JSON.stringify({p,s:k===''?null:+k,n:Date.now().toString(36)+Math.random().toString(36).slice(2,6)}));$('out').value=a+'-'+ck('sdgq'+a);$('out').select()};$('bk').onclick=admin}
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('sdgq'+t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+let ADM=false;
+function admin(){mode='ui';show('#3a1f1f');if(!ADM){authUI();return}
+ card.innerHTML=`<h2>🛡️ Admin Panel</h2><button class="opt" id="a1">∞ Infinite points: ${sv.inf?'ON':'OFF'}</button><button class="opt" id="a2">+10,000 points</button><button class="opt" id="a3">Unlock ALL skins</button><button class="opt" id="a4">Complete all levels &amp; unlock all portals</button><button class="opt" id="a5">🎁 Create gift code for a player</button><button class="opt" id="a6">Reset my progress</button><button class="go" id="bk">Close</button>`;
+ const U=fn=>()=>{fn();save();hud();admin()};
+ $('a1').onclick=U(()=>sv.inf=!sv.inf);$('a2').onclick=U(()=>sv.pts+=10000);$('a3').onclick=U(()=>sv.own=SK.map((_,k)=>k));
+ $('a4').onclick=U(()=>{D.forEach((_,i)=>{[0,1,2].forEach(l=>sv.lv[i+'-'+l]=1);sv.lv[i+'-b0']=1;sv.lv[i+'-b1']=1});sv.vis=D.map((_,i)=>i)});
+ $('a5').onclick=gift;$('a6').onclick=U(()=>{sv.pts=0;sv.lv={};sv.own=[0];sv.eq=0;sv.vis=[];sv.inf=false;applySkin()});$('bk').onclick=close}
+{const ab=document.createElement('button');ab.className='gb';ab.textContent='🛡️';ab.title='Admin';ab.onclick=()=>mode==='play'&&admin();addEventListener('keydown',e=>{if(e.key==='F2'&&mode==='play')admin()})}
+const ADMIN_HASH='';
+const b2h=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''),h2b=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
+async function pbk(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);return b2h(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},k,256))}
+let fails=0,lockT=0;
+function authUI(){const set=!ADMIN_HASH;if(set&&location.hash!=='#owner-setup'){card.innerHTML='<h2>🔒 Admin locked</h2><p>This area belongs to the game owner only.</p><button class="opt" id="bk">Close</button>';$('bk').onclick=close;return}card.innerHTML=`<h2>🛡️ Admin</h2><p>${set?'No admin password set yet. Create one (min 12 characters):':'Enter the admin password'}</p><input id="pw" type="password" autocomplete="off" ${inp}><div id="m" style="min-height:24px"></div><button class="go" id="ok">${set?'Create':'Unlock'}</button><button class="opt" id="bk">Cancel</button>`;$('bk').onclick=close;
+ $('ok').onclick=async()=>{const v=$('pw').value,m=$('m');if(Date.now()<lockT){m.textContent='Too many attempts. Wait '+Math.ceil((lockT-Date.now())/1000)+'s';return}
+  if(set){if(v.length<12){m.textContent='Use at least 12 characters';return}m.textContent='Working…';const sl=crypto.getRandomValues(new Uint8Array(16)),hh=await pbk(v,sl);
+   card.innerHTML=`<h2>✅ Password created</h2><p style="font-size:14px">Copy this line into the game file, replacing <b>const ADMIN_HASH='';</b> then publish. After that only your password works.</p><textarea id="out" readonly style="width:100%;height:90px;border-radius:10px;border:0;padding:8px">const ADMIN_HASH='${b2h(sl)}:${hh}';</textarea><button class="go" id="c2">Copy</button><button class="opt" id="n2">Close</button>`;
+   $('c2').onclick=()=>{$('out').select();try{navigator.clipboard.writeText($('out').value)}catch(e){}};$('n2').onclick=close;return}
+  m.textContent='Checking…';const[sl,hh]=ADMIN_HASH.split(':');if(await pbk(v,h2b(sl))===hh){ADM=true;fails=0;admin()}else{fails++;if(fails>=5){lockT=Date.now()+30000;fails=0}m.textContent='Wrong password'}}}
+// LOBBY
+let LOB=true;const lb=document.createElement('div');lb.id='lobby';
+lb.innerHTML=`<h1>IMPACT X</h1><p class="tg">Learn the 17 Global Goals. Run. Explore. Win.</p><button class="lb pr" id="lp">▶ PLAY</button><div class="row"><button class="pill" id="lm1">Junior</button><button class="pill" id="lm2">Advanced</button></div><div class="row"><button class="lb" id="ls">🛍️ Skins</button><button class="lb" id="lg">⚙️ Settings</button><button class="lb" id="lr">🎁 Redeem</button><button class="lb" id="la">🛡️ Admin</button></div><div id="lst"></div>`;document.body.appendChild(lb);
+function lobby(){LOB=true;mode='ui';document.body.classList.add('inlob');lb.style.display='flex';const k=SK[sv.eq];$('lst').innerHTML=`<b>${lvN()}</b>/51 levels · <b>${sv.inf?'∞':sv.pts}</b> pts · ${k[0]}`;$('lm1').classList.toggle('on',!sv.cfg.adv);$('lm2').classList.toggle('on',!!sv.cfg.adv)}
+const go=()=>{if(!LOB||lb.style.display==='none')return;const run=()=>{LOB=false;camYaw=0;document.body.classList.remove('inlob');lb.style.display='none';mode='play';sv.cfg.set=1;save()};if(introSeen())run();else{lb.style.display='none';showIntro(run)}};
+$('lp').onclick=go;$('lm1').onclick=()=>{sv.cfg.adv=0;setTheme();save();lobby()};$('lm2').onclick=()=>{sv.cfg.adv=1;setTheme();save();lobby()};
+const sub=f=>()=>{lb.style.display='none';f()};$('ls').onclick=sub(shop);$('lg').onclick=sub(settings);$('lr').onclick=sub(redeem);$('la').onclick=sub(admin);
+addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+const hb=document.createElement('button');hb.className='gb';hb.textContent='🏠';hb.title='Lobby';hb.onclick=()=>mode==='play'&&lobby();tb.appendChild(hb);
+// ===== STORY + COMBAT + BEACONS =====
+var BBL=null;
+const STORY=['Nobody should be left with nothing. The Chairman had skimmed this light to pay himself.','Hunger fades when food is shared. The Chairman had locked the harvest behind his ledger.','Healthy people build strong cities. This beacon warms the sick bay of the Hub again.','Learning is a light nobody can drain. The old school lamps glow once more.','Equal chances for everyone. The doors he kept shut swing wide open.','Clean water runs through the Hub again. The Chairman sold the fountains, now they flow free.','Clean energy hums in the cables. His dirty furnaces go cold.','Fair work, fair pay. The workers he overworked rest and rebuild.','New ideas and strong bridges. The Hub learns to build without burning the sky.','Gaps between rich and poor shrink. Nobody is stuck on the lowest floor now.','Sustainable cities need homes for all. The streets of the Hub fill with light.','Use less, waste less. The mountains of rubbish he hid are turned into tools.','The sky cools. The storms he caused begin to calm.','The sea below sparkles again. Fish return to the clouds of water.','Forests grow on the floating isles. Roots hold the Hub together.','Peace and fair rules. The Chairman can no longer bend the law for himself.','Partnerships hold it all together. Every faction now fights on your side.'];
+function introSeen(){try{return localStorage.getItem('sdgIntro')}catch(e){return 1}}
+function showIntro(cb,PGX){const pg=PGX||[['🏙️','THE SKY HUB','The Sky Hub is the last floating city. Seventeen beacons keep it alive, one for every Global Goal: poverty, hunger, health, water, climate and more.'],['🎩','THE CHAIRMAN','Then the Chairman took charge: a bearded man in a long suit and coat, with a very large ledger. He began draining the beacons for profit.'],['🌑','THE LIGHTS GO OUT','One by one the beacons dimmed. The roads cracked, the isles drifted, and the Hub began to sink toward the clouds.'],['🏃','YOU ARE A RUNNER','Only a Runner can race the sky-roads. To relight a beacon you must LEARN its goal: watch, answer, and prove you understand it.'],['✨','SPARKS AND GEAR','The coins you gather are sparks of light. Skins are gear from the factions you win over, and some wield real weapons: hammer, energy beam, blades.'],['🕹️','HOW TO PLAY','Run: WASD or joystick. Jump: Space. Enter a beacon: E. Attack: F or ⚔️. Skin power: G or ⭐. Map: M. Gates need a KEY: master an SDG to open the next road. Beat the Chairmans guards to earn sparks and buy stronger skins. Glowing pads give a speed boost!'],['🌅','RELIGHT THEM ALL','Relight all 17 beacons, then climb the golden stairs and face the Chairman. Maybe he is not who he seems... Good luck, Runner.']];let i=0,tm;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:99999;background:radial-gradient(circle at 50% 30%,#1b2f5e,#05070f);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;font-family:system-ui,sans-serif';d.innerHTML='<div id="ig" style="font-size:72px"></div><h2 id="it" style="letter-spacing:.14em;margin:8px"></h2><p id="ib" style="max-width:540px;font-size:19px;line-height:1.55;min-height:150px"></p><div><button id="in"></button> <button id="is">Skip</button></div>';document.body.appendChild(d);const bs='padding:12px 22px;border:0;border-radius:22px;font-size:16px;font-weight:bold;margin:4px;cursor:pointer';d.querySelector('#in').style.cssText=bs+';background:#ffcc33';d.querySelector('#is').style.cssText=bs+';background:#fff3;color:#fff';const q=x=>d.querySelector(x),fin=()=>{clearInterval(tm);d.remove();try{localStorage.setItem('sdgIntro','1')}catch(e){}cb()};
+const pageIn=()=>{const[g,t,b]=pg[i];q('#ig').textContent=g;q('#it').textContent=t;q('#in').textContent=i<pg.length-1?'Next ➜':'▶ BEGIN';let n=0;clearInterval(tm);tm=setInterval(()=>{n+=2;q('#ib').textContent=b.slice(0,n);if(n>=b.length)clearInterval(tm)},22)};
+q('#in').onclick=()=>{const b=pg[i][2];if(q('#ib').textContent.length<b.length){clearInterval(tm);q('#ib').textContent=b;return}i++;i<pg.length?pageIn():fin()};q('#is').onclick=fin;pageIn()}
+BBL=P.map(p=>{const a=p.i/17*6.283,c=D[p.i][2],g=new THREE.Group();g.position.set(p.x-Math.sin(a)*8,0,p.z+Math.cos(a)*8);const m=M(0x2c3348,{emissive:c,emissiveIntensity:.05}),o=M(c,{emissive:c,emissiveIntensity:.05}),bm=M(c,{emissive:c,emissiveIntensity:1.2,transparent:true,opacity:.22,side:2});add(new THREE.CylinderGeometry(.7,1.2,9,10),m,0,4.5,0,g);add(new THREE.SphereGeometry(1.4,14,10),o,0,10,0,g);const bw=add(new THREE.CylinderGeometry(1.1,1.1,90,12,1,true),bm,0,55,0,g);S.add(g);return{i:p.i,m,o,bw}});
+function lightB(){if(!BBL)return;BBL.forEach(b=>{const on=[0,1,2].every(l=>sv.lv[b.i+'-'+l]);b.m.emissiveIntensity=on?.9:.05;b.o.emissiveIntensity=on?1.5:.05;b.bw.visible=on})}lightB();
+// ---- weapons: effects, sounds and voices
+const ATK={t:0,d:.4,cd:0,kind:''},FXL=[],FM=(c,o)=>M(c,Object.assign({emissive:c,emissiveIntensity:1.2,transparent:true,opacity:.9},o||{})),fwd=()=>[Math.sin(pl.rotation.y),Math.cos(pl.rotation.y)];
+const fxAdd=(o,life,up)=>{S.add(o);FXL.push({o,life,max:life,up})};
+function FXU(dt){COMBAT(dt);CPG.forEach((o,i)=>{o.rotation.y+=dt*2;o.position.y=3.2+Math.sin(performance.now()/500+i)*.25});if(ATK.cd>0)ATK.cd-=dt;if(ATK.t>0){ATK.t-=dt;const q=1-Math.max(0,ATK.t)/ATK.d;aR.rotation.x=ATK.kind==='beam'?-1.5:-2.4+q*3;eR.rotation.x=-.3}for(let i=FXL.length-1;i>=0;i--){const f=FXL[i];f.life-=dt;f.up(f.o,1-Math.max(0,f.life)/f.max);if(f.life<=0){S.remove(f.o);FXL.splice(i,1)}}}
+function ring(x,y,z,c,r,life){const m=FM(c),o=new THREE.Mesh(new THREE.TorusGeometry(1,.12,8,28),m);o.position.set(x,y,z);o.rotation.x=Math.PI/2;fxAdd(o,life,(o,q)=>{o.scale.setScalar(.3+q*r);m.opacity=.9*(1-q)})}
+function bolt(x,z,c){const g=new THREE.Group(),h=16;g.position.set(x,0,z);add(new THREE.CylinderGeometry(.18,.45,h,6),FM(c),0,h/2,0,g);add(new THREE.CylinderGeometry(.9,.9,h,10),FM(c,{opacity:.25}),0,h/2,0,g);fxAdd(g,.45,(o,q)=>{o.scale.x=o.scale.z=1-q*.7;o.visible=Math.random()>.2})}
+function beam(c){const[a,b]=fwd(),g=new THREE.Group(),L=22,pp=()=>g.position.set(pl.position.x+a*.6,pl.position.y+2.1,pl.position.z+b*.6);pp();g.rotation.y=pl.rotation.y;add(new THREE.CylinderGeometry(.22,.22,L,10),FM(c),0,0,L/2,g).rotation.x=Math.PI/2;add(new THREE.CylinderGeometry(.6,.6,L,12),FM(c,{opacity:.3}),0,0,L/2,g).rotation.x=Math.PI/2;fxAdd(g,.7,(o,q)=>{o.scale.x=o.scale.y=.8+Math.random()*.5;pp();o.visible=q<.9||Math.random()>.4});ring(pl.position.x+a*L,pl.position.y+2,pl.position.z+b*L,c,3,.4)}
+function slash(c,flip,sc){const m=FM(c),o=new THREE.Mesh(new THREE.TorusGeometry(2.4,.09,6,28,2.4),m),[a,b]=fwd();o.position.set(pl.position.x+a*1.7,pl.position.y+2.1,pl.position.z+b*1.7);o.rotation.y=pl.rotation.y;const a0=flip?-1.2:1.2;fxAdd(o,.28,(o,q)=>{o.rotation.z=a0*(1-2*q);o.scale.setScalar(sc*(.8+q*.5));m.opacity=.95*(1-q*q)})}
+function nz(d,f0,f1,g,ty){if(mute||!AC)return;try{ac=ac||new AC();const n=Math.floor(ac.sampleRate*d),bf=ac.createBuffer(1,n,ac.sampleRate),a=bf.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const sr=ac.createBufferSource();sr.buffer=bf;const f=ac.createBiquadFilter();f.type=ty||'bandpass';f.frequency.setValueAtTime(f0,ac.currentTime);f.frequency.exponentialRampToValueAtTime(f1,ac.currentTime+d);const gn=ac.createGain();gn.gain.value=g;sr.connect(f);f.connect(gn);gn.connect(ac.destination);sr.start()}catch(e){}}
+function tn(f0,f1,d,g,w){if(mute||!AC)return;try{ac=ac||new AC();const o=ac.createOscillator(),gn=ac.createGain(),t=ac.currentTime;o.type=w||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+d);gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}}
+function say(t,p,r){if(mute)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.pitch=p;u.rate=r;speechSynthesis.speak(u)}catch(e){}}
+function attack(){if(mode!=='play'||ATK.cd>0)return;const F=window.CF||'',x=pl.position.x,y=pl.position.y,z=pl.position.z,[a,b]=fwd();ATK.cd=.7;ATK.d=ATK.t=.4;ATK.kind='x';
+ if(F.includes('T')){ATK.kind='thor';bolt(x+a*5,z+b*5,0xcfe8ff);setTimeout(()=>ring(x+a*5,y+.2,z+b*5,0xffffff,5,.5),120);nz(.7,500,60,.6,'lowpass');tn(90,40,.5,.3,'sawtooth');say('For the storm!',.6,.85);toast('⚡ STORM HAMMER!')}
+ else if(F.includes('V')){ATK.kind='beam';beam(0x7fe9ff);tn(260,900,.6,.12,'sawtooth');nz(.6,1500,3000,.1);say('Arc beam!',.8,1)}
+ else if(F.includes('N')){slash(0xffffff,0,1);setTimeout(()=>slash(0xb388ff,1,1.15),110);nz(.18,3000,800,.4);setTimeout(()=>nz(.15,3500,1000,.4),110);say('Ninpou! Shadow slash!',1.2,1.2)}
+ else if(F.includes('R')){slash(0xff5a4a,0,1.35);nz(.22,2500,600,.5);setTimeout(()=>tn(1800,2400,.15,.08,'triangle'),120);say('Hyaaah!',.9,1)}
+ else if(F.includes('O')){bolt(x+a*6,z+b*6,0xffd166);setTimeout(()=>ring(x+a*6,y+.2,z+b*6,0xffd166,6,.55),120);nz(.6,600,80,.5,'lowpass');tn(220,110,.5,.2,'triangle');say('By Odin!',.5,.8)}
+ else{ring(x+a*2,y+1.2,z+b*2,0xffffff,4,.35);nz(.2,900,200,.3);say('Hah!',1.2,1.2)}DMG(F,x,y,z,a,b)}
+{const bt=document.createElement('button');bt.textContent='⚔️';bt.style.cssText='position:fixed;right:14px;bottom:118px;width:62px;height:62px;border-radius:50%;border:0;font-size:28px;background:#ffcc33;box-shadow:0 0 16px #ffcc33aa;z-index:50;touch-action:manipulation';bt.onpointerdown=e=>{e.preventDefault();attack()};document.body.appendChild(bt)}
+addEventListener('keydown',e=>{if(e.key.toLowerCase()==='f')attack()});
+
+var gatesUpdate,showKeyCut,COMBAT,DMG;
+try{
+// ===== GATES, KEYS, ARENA, MINIONS, COMBAT, FLYING =====
+var GOK=false,GATES=[],MIN=[],DOOR=null,CO=null,GU=0,FLY=false,wk=0;
+var PL={hp:112,max:112,sh:0,ab:0,hit:0,last:0},FK={u:0,d:0},KEYCUT=[['🔑','THE LAST BEACON','The final beacon blazes. A golden key rises out of its light and floats into your hands.'],['🚪','THE SHINING DOOR','Far above the Sky Hub, the great door of the Chairmans tower hums and begins to open. Every beacon you lit pulls at its lock.'],['🎩','THE CHAIRMAN','He watches from the top of the sky stairs. His elite guards stand on every step. So the Runner learned it all, he says. Then come up and show me.'],['⚔️','THE CLIMB','Climb the stairs, beat his elite guards, and stand before him. Then challenge the Chairman with E.']];
+var mastered=i=>[0,1,2].every(l=>sv.lv[i+'-'+l]),gateOpen=i=>i===0||(ADM&&i<16)||mastered(i-1),doorOpen=()=>mastered(16),TIER=()=>sv.eq+1;
+showKeyCut=function(){showIntro(()=>{},KEYCUT)}
+var lblTex={},lbl=(t,c)=>{const k=t+c;if(!lblTex[k]){const cv=document.createElement('canvas');cv.width=256;cv.height=64;const x=cv.getContext('2d');x.fillStyle='rgba(0,0,0,.6)';x.fillRect(0,6,256,52);x.fillStyle=c;x.font='bold 24px Arial';x.textAlign='center';x.fillText(t,128,42);lblTex[k]=new THREE.CanvasTexture(cv)}const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:lblTex[k],transparent:true}));sp.scale.set(8,2,1);return sp};
+var dirv=[Math.cos(ARa),Math.sin(ARa)],nrm=[-dirv[1],dirv[0]],wpf=(r,l)=>[dirv[0]*r+nrm[0]*l,dirv[1]*r+nrm[1]*l];
+// ---- road gates
+P.forEach(p=>{const i=p.i,a=i/17*6.283,c=Math.cos(a),sn=Math.sin(a),col=D[i][2],g=new THREE.Group();g.position.set(c*34,0,sn*34);g.rotation.y=-a;S.add(g);
+ [-1,1].forEach(k=>{add(new THREE.CylinderGeometry(.5,.6,9,10),M(0x2b3042,{emissive:col,emissiveIntensity:.5}),0,4.5,k*4.9,g);add(new THREE.SphereGeometry(.7,12,8),M(col,{emissive:col,emissiveIntensity:1}),0,9.4,k*4.9,g)});
+ add(new THREE.BoxGeometry(.5,.6,10.4),M(col,{emissive:col,emissiveIntensity:.8}),0,9.1,0,g);
+ const bar=add(new THREE.BoxGeometry(.25,8.6,9.4),M(col,{emissive:col,emissiveIntensity:1.1,transparent:true,opacity:.35,side:2}),0,4.5,0,g),lk=lbl('🔒 SDG '+(i+1)+': key needed','#ffd166'),op=lbl('✅ SDG '+(i+1)+' OPEN','#7dff9b');
+ lk.position.set(0,11.5,0);op.position.set(0,11.5,0);g.add(lk);g.add(op);GATES.push({i,x:c*34,z:sn*34,r:5.6,bar,lk,op,open:true})});
+// ---- the Chairman's shining door
+{const g=new THREE.Group();g.position.set(DX,0,DZ);g.rotation.y=-ARa;S.add(g);const gold=M(0xffd166,{emissive:0xffb300,emissiveIntensity:1}),pn=[-1,1].map(k=>{const m=add(new THREE.BoxGeometry(.5,9,4.7),M(0xfff4cf,{emissive:0xffe08a,emissiveIntensity:.9}),0,4.5,k*2.4,g);m.userData.k=k;return m});
+ add(new THREE.TorusGeometry(5.2,.35,10,40,Math.PI),gold,0,9,0,g).rotation.y=Math.PI/2;[-1,1].forEach(k=>{add(new THREE.CylinderGeometry(.7,.8,10,12),gold,0,5,k*5.3,g);add(new THREE.SphereGeometry(.8,14,10),gold,0,10.4,k*5.3,g)});
+ const gl=add(new THREE.BoxGeometry(.1,9,9.6),M(0xfff2b0,{emissive:0xfff2b0,emissiveIntensity:1.2,transparent:true,opacity:.35,side:2}),0,4.5,0,g),lk=lbl('🔒 CHAIRMANS DOOR','#ffd166'),op=lbl('✨ DOOR OPEN','#7dff9b');lk.position.set(0,12.5,0);op.position.set(0,12.5,0);g.add(lk);g.add(op);DOOR={x:DX,z:DZ,r:6.2,pn,gl,lk,op,open:false,t:0}}
+// ---- the sky stairs and the arena
+{const g=new THREE.Group();g.rotation.y=-ARa;S.add(g);const st=[M(0xc9ced9),M(0xaeb5c6)],red=M(0xb3001b),gl=M(0xffd166,{emissive:0xffb300,emissiveIntensity:.8});
+ for(let j=0;j<60;j++){const r=24+1.4*j+.7,y=.75*(j+1);add(new THREE.BoxGeometry(1.45,.5,10),st[j%2],r,y-.25,0,g);add(new THREE.BoxGeometry(1.4,.04,3),red,r,y+.02,0,g);[-1,1].forEach(k=>add(new THREE.BoxGeometry(1.45,.12,.3),gl,r,y+.06,k*4.85,g));
+  if(j%10===9)[-1,1].forEach(k=>{add(new THREE.CylinderGeometry(.12,.15,2.6,6),M(0x2b3042),r,y+1.3,k*4.9,g);add(new THREE.SphereGeometry(.4,10,8),M(0xfff2b0,{emissive:0xffe08a,emissiveIntensity:1.2}),r,y+2.8,k*4.9,g)});
+  for(let l=-4.4;l<=4.41;l+=.9){const w=wpf(r,l);PF.push({x:w[0],z:w[1],r:.8,y,cp:j%15===14?1:0,dr:1,off:true})}}
+ add(new THREE.CylinderGeometry(17,17.6,1.2,48),M(0xc9ced9),BX,ARY-.6,BZ);add(new THREE.TorusGeometry(16,.25,8,60),gl,BX,ARY+.05,BZ).rotation.x=Math.PI/2;add(new THREE.CylinderGeometry(6.5,7,1.2,40),M(0x2b3042,{emissive:0x331a00}),BX,ARY+.6,BZ);add(new THREE.TorusGeometry(5.5,.2,8,48),gl,BX,ARY+1.25,BZ).rotation.x=Math.PI/2;
+ for(let k=0;k<8;k++){const t=k/8*6.283,x=BX+Math.cos(t)*15,z=BZ+Math.sin(t)*15;add(new THREE.CylinderGeometry(.6,.75,10,12),M(0xe8ebf2),x,ARY+5,z);add(new THREE.SphereGeometry(.9,14,10),gl,x,ARY+10.4,z)}
+ add(new THREE.TorusGeometry(7,.3,10,48),gl,BX+dirv[0]*8,ARY+11,BZ+dirv[1]*8).rotation.y=Math.PI/2-ARa;
+ {const tg=new THREE.Group();tg.position.set(BX+dirv[0]*6.5,ARY,BZ+dirv[1]*6.5);tg.rotation.y=-ARa;S.add(tg);add(new THREE.BoxGeometry(1.2,10,8),M(0x4a1020,{emissive:0x200008}),0,5,0,tg);[-1,1].forEach(k=>add(new THREE.BoxGeometry(1.3,10.4,.5),gl,0,5,k*4.1,tg))}
+ add(new THREE.CylinderGeometry(3,5,70,24,1,true),M(0xfff2b0,{transparent:true,opacity:.1,side:2,emissive:0xfff2b0,emissiveIntensity:.4}),BX,ARY+35,BZ);
+ for(let x=-16.2;x<=16.3;x+=1.2)for(let z=-16.2;z<=16.3;z+=1.2)if(Math.hypot(x,z)<16.6)PF.push({x:BX+x,z:BZ+z,r:.9,y:ARY,cp:1,dr:1,off:true})}
+// ---- a magnificent Chairman
+{const gd=M(0xffd166,{emissive:0xffb300,emissiveIntensity:.9});[-1,1].forEach(k=>add(new THREE.SphereGeometry(.62,12,8),gd,k*1.75,3.6,0,B3).scale.set(1.2,.7,1));add(new THREE.ConeGeometry(.55,.8,8),gd,0,5.75,0,B3);add(new THREE.TorusGeometry(.5,.07,6,16),gd,0,5.4,0,B3).rotation.x=Math.PI/2;
+ add(new THREE.BoxGeometry(2.8,3.8,.25),M(0x5a0f22,{emissive:0x200008}),0,2.4,-1.2,B3).rotation.x=.12;[-1,1].forEach(k=>add(new THREE.BoxGeometry(.28,.08,.1),M(0xff3030,{emissive:0xff3030,emissiveIntensity:1.5}),k*.25,4.55,.97,B3));
+ CO=new THREE.Group();CO.position.y=3.2;B3.add(CO);for(let k=0;k<12;k++){const t=k/12*6.283;add(new THREE.CylinderGeometry(.22,.22,.06,12),gd,Math.cos(t)*3.4,Math.sin(t*3)*.4,Math.sin(t)*3.4,CO).rotation.x=Math.PI/2}}
+// ---- minions: health and damage grow with the SDG level
+var minCol=L=>new THREE.Color().setHSL(.64-.6*Math.min(1,L/18),.55,.3);
+function mkMin(x,y,z,L,el,road){const g=new THREE.Group(),s=el?2:.85+.05*L;g.position.set(x,y,z);g.scale.setScalar(s);S.add(g);
+ add(new THREE.CylinderGeometry(.42,.55,1.5,10),M(minCol(L)),0,1.1,0,g);add(new THREE.SphereGeometry(.36,12,10),M(0xd9b38c),0,2.1,0,g);add(new THREE.BoxGeometry(.55,.09,.1),M(0xff2a2a,{emissive:0xff2a2a,emissiveIntensity:1.4}),0,2.14,.33,g);add(new THREE.BoxGeometry(.5,.42,.2),M(0x1a1a22),.72,.95,0,g);
+ if(L>=9||el)[-1,1].forEach(k=>add(new THREE.SphereGeometry(.3,8,6),M(0xffd166,{emissive:0x7a5200}),k*.55,1.8,0,g));
+ const bg=new THREE.Sprite(new THREE.SpriteMaterial({color:0})),fg=new THREE.Sprite(new THREE.SpriteMaterial({color:0xff3b3b}));bg.position.set(0,3.1,0);fg.position.set(0,3.1,.01);bg.scale.set(1.5,.2,1);fg.scale.set(1.46,.16,1);g.add(bg);g.add(fg);
+ const m={g,fg,L,el,road,x,y,z,hx:x,hz:z,max:36*Math.pow(L,1.25)*(el?3:1),dmg:5*Math.pow(L,1.1)*(el?1.6:1),cd:0,st:0,stun:0,dead:false,rt:0};m.hp=m.max;MIN.push(m);return m}
+P.forEach(p=>{const i=p.i,a=i/17*6.283,c=Math.cos(a),sn=Math.sin(a),sg=i%2?-1:1,n=3+(i>>2);for(let k=0;k<n;k++){const u=46+k*(78/n)+(k%2)*3,v=pv(u)*sg+(k%2?1.6:-1.6);mkMin(c*u-sn*v,0,sn*u+c*v,i+1,false,i)}});
+[10,18,26,34,42,50,56].forEach((j,q)=>{const w=wpf(24+1.4*j+.7,q%2?2:-2);mkMin(w[0],.75*(j+1),w[1],17,true,-1)});
+function pop(x,y,z,t,c){const cv=document.createElement('canvas');cv.width=128;cv.height=48;const g=cv.getContext('2d');g.font='bold 34px Arial';g.textAlign='center';g.lineWidth=5;g.strokeStyle='#000';g.strokeText(t,64,36);g.fillStyle=c;g.fillText(t,64,36);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));sp.scale.set(2.6,1,1);sp.position.set(x,y,z);fxAdd(sp,.8,(o,q)=>{o.position.y=y+q*2;o.material.opacity=1-q*q;if(q>=.999)o.material.map.dispose()})}
+function hurt(m,mul){if(m.dead)return;const T=TIER(),need=Math.min(m.L,SK.length),weak=T<need;let d=11*(1+.32*(T-1))*mul;if(weak){d*=.08;if(performance.now()-wk>3500){wk=performance.now();toast('🛡️ Too strong! Level '+m.L+' guards need a skin of level '+need+'+ (yours: '+T+')')}}pop(m.x,m.y+3.4*m.g.scale.x,m.z,Math.max(1,Math.round(d)),weak?'#9aa4b5':'#ffe066');
+ m.hp-=d;m.st=.15;if(m.hp<=0){m.dead=true;m.g.visible=false;m.rt=45;ring(m.x,m.y+1,m.z,0xffd166,3,.4);const r=Math.max(4,Math.round(SK[Math.min(m.L,SK.length-1)][1]/25))*(m.el?4:1);sv.pts+=r;toast('💥 Guard defeated! +'+r+' ✨');try{save();hud()}catch(e){}}else{const q=Math.max(0,m.hp/m.max);m.fg.scale.x=1.46*q;m.fg.position.x=-(1-q)*.73}}
+var inCone=(m,range,cs)=>{const dx=m.x-pl.position.x,dz=m.z-pl.position.z,d=Math.hypot(dx,dz);return !m.dead&&d<range&&(d<1.2||(dx*Math.sin(pl.rotation.y)+dz*Math.cos(pl.rotation.y))/d>cs)&&Math.abs(m.y-pl.position.y)<5},
+ inLine=(m,x,z,a,b,len,w)=>{const dx=m.x-x,dz=m.z-z,t=dx*a+dz*b;return !m.dead&&t>-1&&t<len&&Math.abs(dx*b-dz*a)<w&&Math.abs(m.y-pl.position.y)<5},
+ inCirc=(m,x,z,r)=>!m.dead&&Math.hypot(m.x-x,m.z-z)<r&&Math.abs(m.y-pl.position.y)<5;
+DMG=function(F,x,y,z,a,b){const A=f=>MIN.forEach(f);
+ if(F.includes('T')||F.includes('O')){const k=F.includes('T')?5:6;A(m=>inCirc(m,x+a*k,z+b*k,5.5)&&hurt(m,1.6))}
+ else if(F.includes('V'))A(m=>inLine(m,x,z,a,b,24,2.4)&&hurt(m,1.5));
+ else if(F.includes('N')){A(m=>inCone(m,6,.3)&&hurt(m,1.1));setTimeout(()=>A(m=>inCone(m,6,.3)&&hurt(m,1.1)),110)}
+ else if(F.includes('R'))A(m=>inCone(m,7,.1)&&hurt(m,1.5));else A(m=>inCone(m,4.8,.3)&&hurt(m,1))}
+var AB=['nova','heal','dash','shield','beam','quake'],ABN={nova:'⚡ Storm Nova',heal:'💚 Mend',dash:'💨 Shadow Dash',shield:'🛡️ Aegis',beam:'🔆 Pierce',quake:'🌋 Quake'};
+function ability(){if(mode!=='play'||PL.ab>0)return;const F=window.CF||'',ty=F.includes('T')?'nova':F.includes('V')?'beam':F.includes('N')?'dash':F.includes('R')?'quake':F.includes('O')?'shield':AB[sv.eq%6],p=pl.position,x=p.x,y=p.y,z=p.z,a=Math.sin(pl.rotation.y),b=Math.cos(pl.rotation.y),A=f=>MIN.forEach(f);PL.ab=Math.max(5,9-.2*sv.eq);
+ if(ty==='nova'){ring(x,y+1,z,0xcfe8ff,9,.6);[[4,0],[-4,0],[0,4],[0,-4]].forEach(o=>bolt(x+o[0],z+o[1],0xcfe8ff));A(m=>inCirc(m,x,z,9.5)&&hurt(m,2.4));nz(.7,500,60,.6,'lowpass');say('Storm nova!',.6,.9)}
+ else if(ty==='beam'){beam(0x7fe9ff);A(m=>inLine(m,x,z,a,b,30,2.8)&&hurt(m,3));tn(200,1100,.8,.14,'sawtooth');say('Pierce!',.8,1)}
+ else if(ty==='dash'){ring(x,y+1,z,0xb388ff,4,.4);slash(0xffffff,0,1.2);A(m=>inLine(m,x,z,a,b,10,2.8)&&hurt(m,2.6));p.x+=a*9;p.z+=b*9;nz(.2,3500,500,.5);say('Shadow dash!',1.2,1.2)}
+ else if(ty==='quake'){ring(x,y+.3,z,0xff5a4a,8,.6);A(m=>{if(inCirc(m,x,z,8.5)){hurt(m,2);m.stun=2}});nz(.6,300,40,.6,'lowpass');say('Blade quake!',.9,1)}
+ else if(ty==='heal'){PL.hp=Math.min(PL.max,PL.hp+PL.max*.45);ring(x,y+1,z,0x7dff9b,5,.6);tn(400,900,.5,.12,'sine');say('Mend!',1.1,1)}
+ else{PL.sh=4;ring(x,y+1,z,0xffd166,5,.6);tn(200,500,.6,.15,'triangle');say('Shield up!',.5,.8)}
+ toast(ABN[ty]+' · '+SK[sv.eq][0])}
+gatesUpdate=function(){if(!GOK)return;{let k=0;while(k<17&&mastered(k))k++;OBJ.textContent=k>=17?'🎯 Climb the sky stairs and face the Chairman (E)':'🎯 Next: master SDG '+(k+1)+' - '+D[k][0]}GATES.forEach(g=>{g.open=gateOpen(g.i);g.bar.visible=!g.open;g.lk.visible=!g.open;g.op.visible=g.open});if(DOOR){DOOR.open=doorOpen();DOOR.lk.visible=!DOOR.open;DOOR.op.visible=DOOR.open}PF.forEach(q=>{if(q.rd!==undefined)q.off=q.u>=34&&!gateOpen(q.rd);else if(q.dr)q.off=!doorOpen()})}
+COMBAT=function(dt){if(!GOK)return;const T=TIER(),mx=90+22*T,p=pl.position;if(PL.max!==mx){PL.hp=Math.min(mx,PL.hp*mx/PL.max);PL.max=mx}
+ if(PL.ab>0)PL.ab-=dt;if(PL.sh>0)PL.sh-=dt;PL.last+=dt;if(PL.last>5&&PL.hp<PL.max)PL.hp=Math.min(PL.max,PL.hp+PL.max*.02*dt);
+ GATES.concat(DOOR?[DOOR]:[]).forEach(g=>{if(g.open)return;const dx=p.x-g.x,dz=p.z-g.z,d=Math.hypot(dx,dz);if(d<g.r&&d>.01){p.x=g.x+dx/d*g.r;p.z=g.z+dz/d*g.r;if(performance.now()-wk>2500){wk=performance.now();toast(g===DOOR?'🔒 The Chairmans door opens only with his key: master SDG 17':'🔒 Gate locked: master SDG '+g.i+' to earn this key')}}});
+ MIN.forEach(m=>{if(m.dead){m.rt-=dt;if(m.rt<=0&&Math.hypot(m.x-p.x,m.z-p.z)>35){m.dead=false;m.hp=m.max;m.x=m.hx;m.z=m.hz;m.g.visible=true;m.fg.scale.x=1.46;m.fg.position.x=0}return}
+  const dx=p.x-m.x,dz=p.z-m.z,d=Math.hypot(dx,dz);m.g.visible=d<140;if(d>140)return;if(m.cd>0)m.cd-=dt;if(m.stun>0){m.stun-=dt;return}
+  const act=m.el?doorOpen():gateOpen(m.road),hd=Math.hypot(m.x-m.hx,m.z-m.hz),near=d<(m.el?16:20)&&Math.abs(p.y-m.y)<5&&act&&hd<30;
+  if(near&&d>2.6){const s=Math.min(6.5,2.8+.12*m.L)*dt;if(m.el){const sg=Math.sign(dx*dirv[0]+dz*dirv[1])||1;m.x+=dirv[0]*sg*s;m.z+=dirv[1]*sg*s;m.y=Math.min(45,Math.max(.75,.75*(Math.floor((m.x*dirv[0]+m.z*dirv[1]-24)/1.4)+1)))}else{m.x+=dx/d*s;m.z+=dz/d*s}}else if(!near&&hd>1){const hx=m.hx-m.x,hz=m.hz-m.z;m.x+=hx/hd*3*dt;m.z+=hz/hd*3*dt}
+  if(near)m.g.rotation.y=Math.atan2(dx,dz);m.g.position.set(m.x,m.y+Math.abs(Math.sin(performance.now()/180+m.hx))*.06,m.z);
+  if(near&&d<=2.8&&m.cd<=0){m.cd=1.4;if(PL.sh<=0){PL.hp-=m.dmg;PL.last=0;PL.hit=.35;pop(p.x,p.y+4,p.z,'-'+Math.round(m.dmg),'#ff6b6b');p.x-=dx/d*1.4;p.z-=dz/d*1.4;nz(.12,400,120,.35)}}});
+ if(PL.hp<=0){PL.hp=PL.max;toast('💥 Knocked out! Back to your checkpoint');respawn()}
+ OBJ.style.display=mode==='play'?'block':'none';OV.style.opacity=Math.max(0,PL.hit*2);PL.hit-=dt;HPB.style.display=mode==='play'?'block':'none';HPI.style.width=(100*Math.max(0,PL.hp)/PL.max)+'%';HPT.textContent='HP '+Math.ceil(PL.hp)+' / '+PL.max+'  •  skin Lv '+T;ABT.textContent=PL.ab>0?Math.ceil(PL.ab):'⭐';
+ if(!ADM)FLY=false;FB.style.display=ADM?'block':'none';UB.style.display=DB.style.display=ADM&&FLY?'block':'none';if(FLY){vy=0;gr=false;p.y+=((FK.u?1:0)-(FK.d?1:0))*11*dt}
+ if(DOOR){DOOR.t+=((DOOR.open?1:0)-DOOR.t)*Math.min(1,dt*1.5);DOOR.pn.forEach(m=>m.position.z=m.userData.k*(2.4+DOOR.t*4.6));DOOR.gl.visible=!DOOR.open}
+ if(CO)CO.rotation.y+=dt*.8;if((GU+=dt)>2){GU=0;gatesUpdate()}}
+// ---- on-screen controls
+var mkb=(t,css,fn)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='position:fixed;width:56px;height:56px;border-radius:50%;border:0;font-size:24px;z-index:50;touch-action:manipulation;'+css;b.onpointerdown=e=>{e.preventDefault();fn(1)};b.onpointerup=b.onpointerleave=()=>fn(0);document.body.appendChild(b);return b},
+ ABT=mkb('⭐','right:16px;bottom:188px;background:#8fd3ff',d=>d&&ability()),FB=mkb('✈️','right:16px;bottom:258px;background:#c8ffd1;display:none',d=>d&&(FLY=!FLY)),UB=mkb('⬆','right:84px;bottom:188px;background:#fff;display:none',d=>FK.u=d),DB=mkb('⬇','right:84px;bottom:118px;background:#fff;display:none',d=>FK.d=d);
+var HPB=document.createElement('div');HPB.style.cssText='position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:250px;height:20px;background:#0008;border:2px solid #fff8;border-radius:12px;overflow:hidden;z-index:40;display:none';const HPI=document.createElement('div');HPI.style.cssText='height:100%;background:linear-gradient(#ff6b6b,#d62828);width:100%';const HPT=document.createElement('div');HPT.style.cssText='position:absolute;inset:0;text-align:center;font:bold 12px/20px system-ui,sans-serif;color:#fff;text-shadow:0 1px 2px #000';HPB.appendChild(HPI);HPB.appendChild(HPT);document.body.appendChild(HPB);
+var OV=document.createElement('div');OV.style.cssText='position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 40%,rgba(255,0,0,.65));opacity:0;z-index:45';document.body.appendChild(OV);
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='g')ability();if(k==='v'&&ADM)FLY=!FLY;if(e.code==='Space')FK.u=1;if(e.code==='ShiftLeft'||e.code==='ShiftRight'||e.code==='KeyC')FK.d=1});
+addEventListener('keyup',e=>{if(e.code==='Space')FK.u=0;if(e.code==='ShiftLeft'||e.code==='ShiftRight'||e.code==='KeyC')FK.d=0});
+var OBJ=document.createElement('div');OBJ.style.cssText='position:fixed;top:6px;left:50%;transform:translateX(-50%);max-width:72vw;padding:4px 12px;background:#0009;color:#fff;font:600 12px system-ui,sans-serif;border-radius:12px;z-index:40;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';document.body.appendChild(OBJ);
+GOK=true;gatesUpdate();
+}catch(e){console.error('Impact X: the combat system could not start',e)}
+
+// ===== ACCOUNTS (optional cloud save; guests still play with local saves only) =====
+var ACC={user:null},cloudT=0,cloudPush,acctUI,ACCT={};
+try{
+const aj=(p,b)=>fetch('/api/'+p,{method:b?'POST':'GET',credentials:'same-origin',headers:b?{'content-type':'application/json'}:{},body:b?JSON.stringify(b):undefined}).then(r=>r.json().then(j=>Object.assign({s:r.status},j),()=>({s:r.status,error:'Bad response'}))).catch(()=>({s:0,error:'Accounts are not available right now. You can still play as a guest.'}));
+const prog=d=>Object.keys((d&&d.lv)||{}).length*1e6+((d&&d.pts)||0);
+cloudPush=()=>{if(!ACC.user)return;clearTimeout(cloudT);cloudT=setTimeout(()=>{const d=Object.assign({},sv);delete d.inf;aj('save',{data:d})},2500)};
+const pull=d=>{if(d&&prog(d)>=prog(sv)){Object.assign(sv,d);try{SEC.save(sv)}catch(e){}try{applySkin();hud()}catch(e){}return true}return false};
+const label=()=>{BTN.textContent=ACC.user?'👤':'👤';BTN.title=ACC.user?'Signed in as '+ACC.user:'Sign in';BTN.style.background=ACC.user?'#9dffb4dd':'#ffffffaa'};
+const enter=async(r)=>{ACC.user=r.user;const me=await aj('me');if(!pull(me.data))cloudPush();label();toast('✅ Signed in as '+r.user)};
+const doAuth=async(kind,u,p,extra)=>{const r=await aj(kind,Object.assign({user:u,password:p},extra||{}));if(r.s===200&&r.user)await enter(r);return r};
+ACCT={aj,prog,pull,doAuth,cloudPush:()=>cloudPush()};
+const BTN=document.createElement('button');BTN.style.cssText='position:fixed;left:6px;top:50%;width:38px;height:38px;border-radius:50%;border:0;font-size:18px;z-index:50;opacity:.75;touch-action:manipulation';document.body.appendChild(BTN);
+acctUI=()=>{const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:99998;background:#05070fe6;color:#fff;display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui,sans-serif';
+ d.innerHTML='<div id="ap" style="width:min(380px,100%);background:#141a2e;border-radius:18px;padding:20px;max-height:92vh;overflow:auto"></div>';document.body.appendChild(d);['keydown','keyup'].forEach(k=>d.addEventListener(k,e=>{e.stopPropagation();if(k==='keydown'&&e.key==='Escape')d.remove()}));
+ const ap=d.querySelector('#ap'),q=x=>ap.querySelector(x),inp='style="width:100%;box-sizing:border-box;padding:11px;margin:5px 0;border-radius:10px;border:0;font-size:15px"',bt='style="padding:11px 16px;border:0;border-radius:18px;font-weight:700;font-size:14px;margin:4px 4px 0 0;cursor:pointer"';
+ const msg=t=>{q('#am').textContent=t},home=()=>{
+  if(ACC.user){ap.innerHTML='<h2 style="margin:0 0 8px">👤 '+ACC.user+'</h2><p style="font-size:14px;opacity:.85">Your progress is saved online and follows you to any device.</p><div id="am" style="color:#ffb3b3;min-height:18px;font-size:13px"></div><input id="dp" type="password" placeholder="Password (only to delete account)" autocomplete="current-password" '+inp+'><button id="so" '+bt+'>Sign out</button><button id="de" '+bt+'>Delete account</button><button id="cl" '+bt+'>Close</button>';
+   q('#so').onclick=async()=>{await aj('logout',{});ACC.user=null;label();d.remove();toast('Signed out')};q('#cl').onclick=()=>d.remove();
+   q('#de').onclick=async()=>{if(!confirm('Delete your account and online save forever?'))return;const r=await aj('delete',{password:q('#dp').value});if(r.s===200){ACC.user=null;label();d.remove();toast('Account deleted')}else msg(r.error||'Failed')};return}
+  ap.innerHTML='<h2 style="margin:0 0 6px">👤 Impact X account</h2><p style="font-size:13px;opacity:.85;margin:0 0 8px">Optional. Save your progress online and play on any phone. No email needed. Or just play as a guest.</p><input id="u" placeholder="Username (3-20: a-z, 0-9, _)" autocomplete="username" '+inp+'><input id="p" type="password" placeholder="Password (10+ characters)" autocomplete="current-password" '+inp+'><label style="font-size:12px;display:block;margin:6px 0"><input id="ag" type="checkbox"> I am 13 or older (or a parent/guardian allows me) and I accept the <a style="color:#8fd3ff" href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a style="color:#8fd3ff" href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</label><div id="am" style="color:#ffb3b3;min-height:18px;font-size:13px"></div><button id="li" '+bt+'>Sign in</button><button id="cr" '+bt+'>Create account</button><button id="rc" '+bt+'>Forgot password</button><button id="gu" '+bt+'>Play as guest</button>';
+  const go=async(k)=>{msg('Please wait...');const r=await doAuth(k,q('#u').value,q('#p').value,{agree:q('#ag').checked});if(r.s!==200)return msg(r.error||'Something went wrong');if(r.recovery)showCode(r.recovery,'Account created!');else d.remove()};
+  q('#li').onclick=()=>go('login');q('#cr').onclick=()=>go('register');q('#gu').onclick=()=>d.remove();
+  q('#rc').onclick=()=>{ap.innerHTML='<h2 style="margin:0 0 6px">Recover account</h2><p style="font-size:13px;opacity:.85">Enter your username, the recovery code you saved when you signed up, and a new password.</p><input id="u" placeholder="Username" '+inp+'><input id="c" placeholder="Recovery code (XXXXX-XXXXX-XXXXX-XXXXX)" '+inp+'><input id="p" type="password" placeholder="New password (10+ characters)" autocomplete="new-password" '+inp+'><div id="am" style="color:#ffb3b3;min-height:18px;font-size:13px"></div><button id="ok" '+bt+'>Reset password</button><button id="bk" '+bt+'>Back</button>';
+   q('#bk').onclick=home;q('#ok').onclick=async()=>{msg('Please wait...');const r=await aj('recover',{user:q('#u').value,code:q('#c').value,password:q('#p').value});if(r.s!==200)return msg(r.error||'Failed');await enter(r);showCode(r.recovery,'Password reset!')}}};
+ const showCode=(c,t)=>{ap.innerHTML='<h2 style="margin:0 0 6px">'+t+'</h2><p style="font-size:14px">Write down this <b>recovery code</b>. It is shown only once. If you forget your password, it is the ONLY way back into your account.</p><div id="rcb" style="font:700 20px monospace;text-align:center;background:#000;color:#ffd166;padding:14px;border-radius:12px;letter-spacing:1px;user-select:all"></div><button id="sv" '+bt+'>I saved it</button>';q('#rcb').textContent=c;q('#sv').onclick=()=>d.remove()};
+ home()};
+BTN.onclick=acctUI;label();
+try{if(typeof lb!=='undefined'&&lb){const b2=document.createElement('button');b2.textContent='👤 Sign in / save online';b2.style.cssText='display:block;margin:10px auto;padding:10px 18px;border:0;border-radius:18px;font-weight:700;cursor:pointer';b2.onclick=acctUI;lb.appendChild(b2)}}catch(e){}
+aj('me').then(r=>{if(r&&r.s===200&&r.user)enter(r)});
+}catch(e){console.error('Impact X: accounts could not start',e)}
+
+{const ft=document.createElement('div');ft.innerHTML='© 2026 Impact X. All rights reserved. · <a href="/privacy.html" target="_blank" rel="noopener" style="color:#fff">Privacy</a> · <a href="/terms.html" target="_blank" rel="noopener" style="color:#fff">Terms</a>';ft.style.cssText='position:fixed;left:0;right:0;bottom:2px;text-align:center;font:11px system-ui,sans-serif;color:#fff;opacity:.6;pointer-events:none;z-index:5';ft.querySelectorAll('a').forEach(a=>a.style.pointerEvents='auto');document.body.appendChild(ft);try{console.log('%cImpact X © 2026. All rights reserved.','font-weight:bold;font-size:14px')}catch(e){}}
+lobby();
+applyCfg();
+applySkin();hud();
+
+})();</script></body></html>
