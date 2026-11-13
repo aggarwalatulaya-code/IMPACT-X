@@ -10,12 +10,16 @@ A free 3D browser game that teaches the 17 UN Global Goals (SDGs). You are a Run
 - Road gates: master an SDG to earn the key to the next road
 - Combat: guards scale with SDG level, skins have different weapons and abilities (F = attack, G = ability)
 - 17 skins, speed boosters, checkpoints, minimap and full map, sky arena for the Chairman
-- Optional accounts with cloud save (username + password, no email), Privacy Policy and Terms pages
+- Optional accounts with cloud save: Sign in with Google or username + password (no email stored), Privacy Policy and Terms pages
 
 ## Tech
 - Front end: one file, `index.html` (vanilla JavaScript, Three.js r128 from cdnjs, Web Audio and Web Speech for sounds and voices)
 - Local saves are encrypted in the browser (SHA-256 / HMAC based)
 - Back end: `netlify/functions/api.mjs` (Netlify Functions + Netlify Blobs; scrypt password hashing, HttpOnly session cookies, rate limits)
+
+## Deploy with GitHub + Netlify (recommended)
+1. Link this repo to a Netlify site (Project configuration > Build & deploy > Link repository). Every push to GitHub then redeploys automatically.
+2. In Netlify > Site configuration > Environment variables add: `GOOGLE_CLIENT_ID` (from Google Cloud Console, optional) and `ADMIN_HASH` (owner only, optional). `build.mjs` injects them at build time, so no secrets live in GitHub.
 
 ## Run locally
 Open `index.html` in a browser (guest mode works with no server). For the accounts backend use the Netlify CLI: `npm install` then `netlify dev`.
@@ -36,12 +40,6 @@ Admin is locked unless the owner sets `ADMIN_HASH` in `index.html`. The owner pa
 - Privacy Policy and Terms are templates and need the contact email and country filled in
 
 ## Credits
-Team members: INDRAJEET GUPTA 
-ATULAYA AGGARWAL
-ANSHUMAN SINGH
-VAANYA GOYAL
-MAYANK GUPTA
-ANIRUDH GUPTA 
-
+Team members: add names here
 
 Copyright (c) 2026 Impact X. All rights reserved.
